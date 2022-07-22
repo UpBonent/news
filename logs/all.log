@@ -1,0 +1,6 @@
+time="2022-07-23T00:09:12+03:00" level=info msg=fasf func="main.main()" file="main.go:14"
+time="2022-07-23T00:09:12+03:00" level=info msg=pokp func="main.main()" file="main.go:15"
+time="2022-07-23T00:09:22+03:00" level=info msg=fasf func="main.main()" file="main.go:14"
+time="2022-07-23T00:09:22+03:00" level=info msg=pokp func="main.main()" file="main.go:15"
+time="2022-07-23T00:09:36+03:00" level=info msg=fasf func="main.main()" file="main.go:14"
+time="2022-07-23T00:09:36+03:00" level=info msg=pokp func="main.main()" file="main.go:15"

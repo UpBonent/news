@@ -1,6 +1,9 @@
 package main
 
-import "github.com/UpBonent/news/src/layers/api"
+import (
+	"github.com/UpBonent/news/src/layers/api"
+	"github.com/UpBonent/news/src/layers/infrastructure/logging"
+)
 
 type Cat struct {
 	Name  string `json:"name"`
@@ -8,7 +11,10 @@ type Cat struct {
 }
 
 func main() {
+	logging.NewLogger()
+	l := logging.GetLogger()
 	api.StarServer()
+
 }
 
 //
