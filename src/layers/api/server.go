@@ -24,9 +24,6 @@ func StarServer() {
 	routeArticle := article.NewHandlerArticle()
 	routeArticle.Register("/article", e)
 
-	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
-		Root: "../html",
-	}))
 	// Start server
 	e.Logger.Fatal(e.Start(":8080"))
 }

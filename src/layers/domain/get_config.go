@@ -1,8 +1,8 @@
 package domain
 
 import (
+	"github.com/UpBonent/news/src/layers/infrastructure/logging"
 	"github.com/ilyakaznacheev/cleanenv"
-	"github.com/sirupsen/logrus"
 	"sync"
 )
 
@@ -28,7 +28,7 @@ type StorageConfig struct {
 var instance *Config
 var once sync.Once
 
-func GetConfig(l *logrus.Logger) *Config {
+func GetConfig(l *logging.Logger) *Config {
 	once.Do(func() {
 		l.Info("read config")
 

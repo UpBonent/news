@@ -6,21 +6,21 @@ import (
 )
 
 //can DELETE
-var _ services.RESTMethod = &handlerAuthor{}
+var _ services.RESTMethod = &Author{}
 
 const (
 	toCreateAuthor = "/create"
 )
 
-type handlerAuthor struct {
+type Author struct {
 }
 
 func NewHandlerAuthor() services.RESTMethod {
-	return &handlerAuthor{}
+	return &Author{}
 }
 
-func (h *handlerAuthor) Register(way string, e *echo.Echo) {
+func (a *Author) Register(way string, e *echo.Echo) {
 	g := e.Group(way)
-	g.GET("", allAuthor)
+	g.GET("", allAuthors)
 	g.POST(toCreateAuthor, createAuthor)
 }

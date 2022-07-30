@@ -1,11 +1,11 @@
 package postgres
 
 import (
-	"github.com/sirupsen/logrus"
+	"github.com/UpBonent/news/src/layers/infrastructure/logging"
 	"time"
 )
 
-func connect(fn func() error, attempts int, delay time.Duration, l *logrus.Logger) (err error) {
+func connect(fn func() error, attempts int, delay time.Duration, l *logging.Logger) (err error) {
 
 	for attempts > 0 {
 		if err = fn(); err != nil {
@@ -17,7 +17,5 @@ func connect(fn func() error, attempts int, delay time.Duration, l *logrus.Logge
 			return nil
 		}
 	}
-	//errorf or fatalf?
-	l.Errorf("problem with connect to the DB: [%v\n]. Chech status DB", err)
-	return
+	return err
 }

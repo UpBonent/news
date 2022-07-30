@@ -1,18 +1,21 @@
 package main
 
 import (
+	"context"
 	"github.com/UpBonent/news/src/layers/api"
+	"github.com/UpBonent/news/src/layers/domain"
 	"github.com/UpBonent/news/src/layers/infrastructure/logging"
+	"github.com/UpBonent/news/src/layers/infrastructure/postgres"
 )
-
-type Cat struct {
-	Name  string `json:"name"`
-	Years string `json:"years"`
-}
 
 func main() {
 	logging.NewLogger()
 	l := logging.GetLogger()
+	cfg := domain.GetConfig(l)
+	ctx := context.Background()
+
+	_ = postgres.NewClient(ctx, 5, cfg.Storage, l)
+
 	api.StarServer()
 
 }
