@@ -2,7 +2,6 @@ package author
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/UpBonent/news/src/common/models"
 	"github.com/UpBonent/news/src/layers/infrastructure/postgres"
 	"github.com/labstack/echo"
@@ -12,7 +11,7 @@ import (
 
 func deleteAuthor(c echo.Context) (err error) {
 	var read []byte
-	newAuthor := models.Author{}
+	author := models.Author{}
 
 	defer func() {
 		err := c.Request().Body.Close()
@@ -26,14 +25,12 @@ func deleteAuthor(c echo.Context) (err error) {
 		return err
 	}
 
-	err = json.Unmarshal(read, &newAuthor)
+	err = json.Unmarshal(read, &author)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(newAuthor)
-
-	err = postgres.DeleteAuthorQuery(newAuthor)
+	err = postgres.DeleteAuthorQuery(author)
 	if err != nil {
 		return err
 	}

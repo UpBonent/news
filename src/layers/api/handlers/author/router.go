@@ -10,6 +10,7 @@ var _ services.RESTMethod = &Author{}
 
 const (
 	toCreateAuthor = "/create"
+	toDeleteAuthor = "/delete"
 )
 
 type Author struct {
@@ -23,4 +24,5 @@ func (a *Author) Register(way string, e *echo.Echo) {
 	g := e.Group(way)
 	g.GET("", allAuthors)
 	g.POST(toCreateAuthor, createAuthor)
+	g.DELETE(toDeleteAuthor, deleteAuthor)
 }

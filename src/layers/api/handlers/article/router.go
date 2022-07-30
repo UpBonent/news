@@ -23,4 +23,5 @@ func (h *handlerArticle) Register(way string, e *echo.Echo) {
 	e.GET(way, allArticle)
 	g := e.Group(way)
 	g.POST(toCreateArticle, createArticle)
+	g.GET(toCreateArticle, example)
 }

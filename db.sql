@@ -23,6 +23,7 @@ drop table articles;
 --for author
 INSERT INTO authors(name, surname) VALUES($1, $2);
 SELECT name, surname FROM authors;
+DELETE FROM authors WHERE name = $1 AND surname = $2
 
 --for article
 INSERT INTO articles(header, text, date_create, date_publish, id_authors) VALUES ($1, $2, $3, $4, (SELECT id FROM authors WHERE name = $5 AND surname = $6));   -- CreateArticle

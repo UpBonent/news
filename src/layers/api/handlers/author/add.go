@@ -11,7 +11,7 @@ import (
 
 func createAuthor(c echo.Context) (err error) {
 	var read []byte
-	newAuthor := models.Author{}
+	author := models.Author{}
 
 	defer func() {
 		err := c.Request().Body.Close()
@@ -25,12 +25,12 @@ func createAuthor(c echo.Context) (err error) {
 		return err
 	}
 
-	err = json.Unmarshal(read, &newAuthor)
+	err = json.Unmarshal(read, &author)
 	if err != nil {
 		return err
 	}
 
-	err = postgres.AddAuthorQuery(newAuthor)
+	err = postgres.AddAuthorQuery(author)
 	if err != nil {
 		return err
 	}

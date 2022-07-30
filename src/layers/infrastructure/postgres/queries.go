@@ -3,7 +3,7 @@ package postgres
 //	for the author table
 const (
 	NewAuthor    = `INSERT INTO authors(name, surname) VALUES($1, $2)`
-	DeleteAuthor = `DELETE FROM authors`
+	DeleteAuthor = `DELETE FROM authors WHERE name = $1 AND surname = $2`
 	AllAuthors   = `SELECT id, name, surname FROM authors`
 )
 

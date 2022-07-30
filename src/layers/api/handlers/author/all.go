@@ -12,7 +12,7 @@ func allAuthors(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	
+
 	var newLine = byte(10)
 
 	for _, author := range authors {
@@ -25,5 +25,5 @@ func allAuthors(c echo.Context) error {
 
 	}
 
-	return c.JSON(http.StatusOK, "There are authors")
+	return c.String(http.StatusOK, "There are authors")
 }

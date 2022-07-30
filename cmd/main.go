@@ -20,7 +20,18 @@ func main() {
 
 }
 
+//	var stru struct {
+//		Date  string `json:"date"`
+//		Check string `json:"check"`
+//	}
 //
+//	str := `{"date": "` + string(pq.FormatTimestamp(time.Now())) + `", "check": "work"}`
+//	_ = json.Unmarshal([]byte(str), &stru)
+//	fmt.Println(stru)
+//
+//	stroka := string(pq.FormatTimestamp(time.Now()))
+//	parse, _ := pq.ParseTimestamp(time.Local, stroka)
+//	fmt.Printf("value: %v, \n Type: %T", parse, parse)
 //
 //
 //
