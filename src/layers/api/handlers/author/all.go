@@ -12,16 +12,18 @@ func allAuthors(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-
-	var jsonSingle string
+	
+	var newLine = byte(10)
 
 	for _, author := range authors {
-		jsonStruct, err := json.Marshal(author)
+		res, err := json.Marshal(author)
+		res = append(res, newLine)
+		_, err = c.Response().Write(res)
 		if err != nil {
 			return err
 		}
-		jsonSingle += string(jsonStruct) + "\n"
+
 	}
 
-	return c.JSON(http.StatusOK, jsonSingle)
+	return c.JSON(http.StatusOK, "There are authors")
 }
