@@ -9,6 +9,7 @@ create table articles
 (
     id              smallserial NOT NULL,
     header          varchar(65) NOT NULL,
+    annotation      varchar(150) NOT NULL,
     text            text NOT NULL,
     date_create     timestamp NOT NULL,
     date_publish    timestamp NOT NULL,
@@ -23,12 +24,12 @@ drop table articles;
 --for author
 INSERT INTO authors(name, surname) VALUES($1, $2);
 SELECT name, surname FROM authors;
-DELETE FROM authors WHERE name = $1 AND surname = $2
+DELETE FROM authors WHERE name = $1 AND surname = $2;
 
 --for article
 INSERT INTO articles(header, text, date_create, date_publish, id_authors) VALUES ($1, $2, $3, $4, (SELECT id FROM authors WHERE name = $5 AND surname = $6));   -- CreateArticle
 SELECT header, text, date_publish FROM articles;    -- AllArticles
-SELECT header FROM articles WHERE date_publish < $1 && > $2;    -- AllHeaders for the time
+SELECT header, date_publish FROM articles WHERE date_publish < $1 AND articles.date_publish > $2;    -- AllHeaders for the time
 
 --for JOIN
 SELECT header, text, authors.name, authors.surname

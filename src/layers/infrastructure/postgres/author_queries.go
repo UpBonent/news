@@ -37,3 +37,12 @@ func DeleteAuthorQuery(a models.Author) error {
 	result := db.QueryRowx(DeleteAuthor, a.Name, a.Surname)
 	return result.Err()
 }
+
+func GetAuthorByIDQuery(id int) (author models.Author, err error) {
+	result := db.QueryRowx(GetAuthorByID, id)
+	err = result.Scan(&author.Name, &author.Surname)
+	if err != nil {
+		return
+	}
+	return
+}

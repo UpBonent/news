@@ -9,9 +9,9 @@ func connect(fn func() error, attempts int, delay time.Duration, l *logging.Logg
 
 	for attempts > 0 {
 		if err = fn(); err != nil {
-			l.Errorf("problem with connect to the DB: [%v\n].", err)
+			l.Errorf("problem with connect to the db: [%v\n].", err)
 			time.Sleep(delay)
-			l.Info("new attempt to connect to the DB")
+			l.Info("new attempt to connect to the db")
 			attempts--
 		} else {
 			return nil

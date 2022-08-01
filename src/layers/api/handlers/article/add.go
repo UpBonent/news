@@ -43,15 +43,16 @@ func createArticle(c echo.Context) (err error) {
 
 	return c.String(http.StatusCreated, "yeah, article has been created")
 }
+
 func example(c echo.Context) (err error) {
 	q := `
 {
 	"header": "",
 	"text": "",
-	"date_create": "2022-07-30 22:54:00",
-	"date_publish": "2022-07-30 22:54:00",
+	"date_publish": "02.8.22 15:04",
     "name": "Boris",
     "surname": "Pasternak"
+}
 `
 	return c.String(http.StatusOK, q)
 }

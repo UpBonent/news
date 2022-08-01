@@ -32,7 +32,7 @@ func NewClient(ctx context.Context, maxAttempts int, sc domain.StorageConfig, l 
 			}, maxAttempts, 5*time.Second, l)
 
 			if err != nil {
-				l.Panicf("problem with connect to the DB: [%v\n]. Chech status DB", err)
+				l.Panicf("problem with connect to the db: [%v\n]. Chech status db", err)
 			}
 		})
 
