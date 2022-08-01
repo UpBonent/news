@@ -2,21 +2,15 @@ package logging
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"io"
-	"os"
 	"path"
 	"runtime"
+
+	"github.com/sirupsen/logrus"
 )
 
-type Logger struct {
+type logger struct {
 	*logrus.Entry
-}
-
-var e *logrus.Entry
-
-func GetLogger() *Logger {
-	return &Logger{e}
 }
 
 type writerHook struct {
@@ -44,7 +38,10 @@ func (hook *writerHook) Levels() []logrus.Level {
 	return hook.LogLevels
 }
 
-func NewLogger() {
+type Logger interface {
+}
+
+func NewLogger(w io.Writer) *logger {
 	l := logrus.New()
 	l.SetReportCaller(true)
 	l.Formatter = &logrus.TextFormatter{
@@ -56,27 +53,11 @@ func NewLogger() {
 		FullTimestamp: true,
 	}
 
-	err := os.Mkdir("logs", 0777)
-	if err != nil {
-		if err.Error() != "mkdir logs: file exists" {
-			fmt.Printf("text: %s ...\n", err)
-			panic(err)
-		}
-	}
-
-	allFile, err := os.OpenFile("logs/all.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0777)
-	if err != nil {
-		fmt.Println("discard")
-		panic(err)
-	}
-
-	l.SetOutput(io.Discard)
-
+	l.SetOutput(w)
 	l.AddHook(&writerHook{
-		Writer:    []io.Writer{allFile, os.Stdout},
+		Writer:    []io.Writer{w},
 		LogLevels: logrus.AllLevels,
 	})
 	l.SetLevel(logrus.TraceLevel)
-
-	e = logrus.NewEntry(l)
+	return &logger{l: l}
 }

@@ -1,6 +1,11 @@
 version: "3.8"
 
 services:
+  app:
+    depends_on:
+      - postgresql
+      -
+
   postgresql:
     image: postgres:latest
     ports:

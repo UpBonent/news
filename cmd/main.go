@@ -2,19 +2,38 @@ package main
 
 import (
 	"context"
+	"github.com/UpBonent/news/src/layers/domain/repositories/article"
+	"log"
+	"os"
+
+	"github.com/ilyakaznacheev/cleanenv"
+
 	"github.com/UpBonent/news/src/layers/api"
-	"github.com/UpBonent/news/src/layers/domain"
+	"github.com/UpBonent/news/src/layers/infrastructure/config"
 	"github.com/UpBonent/news/src/layers/infrastructure/logging"
 	"github.com/UpBonent/news/src/layers/infrastructure/postgres"
 )
 
 func main() {
-	logging.NewLogger()
-	l := logging.GetLogger()
-	cfg := domain.GetConfig(l)
-	ctx := context.Background()
+	var err error
+	var cfg *config.Config
 
-	_ = postgres.NewClient(ctx, 5, cfg.Storage, l)
+	err = cleanenv.ReadConfig("config.yml", cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	logFile, err := os.OpenFile("logs/all.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0777)
+	if err != nil {
+		panic(err)
+	}
+
+	logger := logging.NewLogger(logFile)
+
+	ctx := context.Background()
+	db := postgres.NewClient(ctx, 5, cfg.Storage, logger)
+
+	aRepository := article.NewRepository(db)
 
 	api.StarServer()
 
