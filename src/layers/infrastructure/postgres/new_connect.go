@@ -12,5 +12,8 @@ import (
 func NewClient(ctx context.Context, sc config.StorageConfig) (db *sqlx.DB, err error) {
 	dsn := fmt.Sprintf("postgresql://%s:%s@%s/%s?sslmode=%s", sc.Username, sc.Password, sc.Host, sc.Database, sc.SSLMode)
 	db, err = sqlx.ConnectContext(ctx, "postgres", dsn)
-	return nil, err
+	if err != nil {
+		panic(err)
+	}
+	return
 }
