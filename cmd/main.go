@@ -2,13 +2,15 @@ package main
 
 import (
 	"context"
+	"github.com/UpBonent/news/src/layers/api/handlers/author"
 	"github.com/UpBonent/news/src/layers/domain/repositories/article"
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"log"
 	"os"
 
 	"github.com/ilyakaznacheev/cleanenv"
 
-	"github.com/UpBonent/news/src/layers/api"
 	"github.com/UpBonent/news/src/layers/infrastructure/config"
 	"github.com/UpBonent/news/src/layers/infrastructure/logging"
 	"github.com/UpBonent/news/src/layers/infrastructure/postgres"
@@ -35,7 +37,24 @@ func main() {
 
 	aRepository := article.NewRepository(db)
 
-	api.StarServer()
+	// Echo instance
+	e := echo.New()
+
+	// Middleware
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: `[${time_rfc3339}] ${status} ${method} ${host}${path} ${latency_human}. Error: [${error}]` + "\n",
+	}))
+	e.Use(middleware.Recover())
+
+	// Routes
+	routeAuthor := author.NewHandlerAuthor()
+	routeAuthor.Register("/author", e)
+
+	routeArticle := article.NewHandlerArticle()
+	routeArticle.Register("/article", e)
+
+	// Start server
+	e.Logger.Fatal(e.Start(":8080"))
 
 }
 
