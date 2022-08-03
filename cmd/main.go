@@ -2,8 +2,9 @@ package main
 
 import (
 	"context"
-	"github.com/UpBonent/news/src/layers/api/handlers/author"
+	"github.com/UpBonent/news/src/layers/api/rest"
 	"github.com/UpBonent/news/src/layers/domain/repositories/article"
+	"github.com/UpBonent/news/src/layers/domain/repositories/author"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"log"
@@ -18,9 +19,10 @@ import (
 
 func main() {
 	var err error
-	var cfg *config.Config
+	var cfg config.Config
 
-	err = cleanenv.ReadConfig("config.yml", cfg)
+	ctx := context.Background()
+	err = cleanenv.ReadConfig("config.yml", &cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,57 +32,24 @@ func main() {
 		panic(err)
 	}
 
-	logger := logging.NewLogger(logFile)
+	_ = logging.NewLogger(logFile)
 
-	ctx := context.Background()
-	db := postgres.NewClient(ctx, 5, cfg.Storage, logger)
+	db, err := postgres.NewClient(ctx, cfg.Storage)
+	if err != nil {
+		panic(err)
+	}
 
-	aRepository := article.NewRepository(db)
+	artRep := article.NewRepository(db)
+	authRep := author.NewRepository(db)
 
 	// Echo instance
 	e := echo.New()
-
 	// Middleware
-	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format: `[${time_rfc3339}] ${status} ${method} ${host}${path} ${latency_human}. Error: [${error}]` + "\n",
-	}))
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{Format: `[${time_rfc3339}] ${status} ${method} ${host}${path} ${latency_human}. Error: [${error}]` + "\n"}))
 	e.Use(middleware.Recover())
-
 	// Routes
-	routeAuthor := author.NewHandlerAuthor()
-	routeAuthor.Register("/author", e)
-
-	routeArticle := article.NewHandlerArticle()
-	routeArticle.Register("/article", e)
-
+	rest.NewHandlerAuthor(ctx, "/author", authRep).Register(e)
+	rest.NewHandlerArticle(ctx, "/article", artRep, authRep).Register(e)
 	// Start server
-	e.Logger.Fatal(e.Start(":8080"))
-
+	e.Logger.Fatal(e.Start(cfg.Listen.Port))
 }
-
-//	var stru struct {
-//		Date  string `json:"date"`
-//		Check string `json:"check"`
-//	}
-//
-//	str := `{"date": "` + string(pq.FormatTimestamp(time.Now())) + `", "check": "work"}`
-//	_ = json.Unmarshal([]byte(str), &stru)
-//	fmt.Println(stru)
-//
-//	stroka := string(pq.FormatTimestamp(time.Now()))
-//	parse, _ := pq.ParseTimestamp(time.Local, stroka)
-//	fmt.Printf("value: %v, \n Type: %T", parse, parse)
-//
-//
-//
-//
-//
-//
-
-//
-//g.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
-//	if username == "Tom" && password == "1234" {
-//		return true, nil
-//	}
-//	return false, echo.NewHTTPError(http.StatusNotAcceptable, "pleas write incorrect name & password")
-//}))

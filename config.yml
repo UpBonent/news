@@ -2,8 +2,8 @@
 
 is_debug: true
 listen:
-  type: port
-  port: 8080
+  bing_ip: 127.0.0.1
+  port: ":8080"
 storage:
   host: localhost
   port: 5432

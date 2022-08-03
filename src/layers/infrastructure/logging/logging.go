@@ -41,7 +41,7 @@ func (hook *writerHook) Levels() []logrus.Level {
 type Logger interface {
 }
 
-func NewLogger(w io.Writer) *logger {
+func NewLogger(w io.Writer) *logrus.Logger {
 	l := logrus.New()
 	l.SetReportCaller(true)
 	l.Formatter = &logrus.TextFormatter{
@@ -59,5 +59,5 @@ func NewLogger(w io.Writer) *logger {
 		LogLevels: logrus.AllLevels,
 	})
 	l.SetLevel(logrus.TraceLevel)
-	return &logger{l: l}
+	return l
 }
