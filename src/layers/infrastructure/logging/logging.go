@@ -9,10 +9,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type logger struct {
-	*logrus.Entry
-}
-
 type writerHook struct {
 	Writer    []io.Writer
 	LogLevels []logrus.Level
@@ -36,9 +32,6 @@ func (hook *writerHook) Fire(entry *logrus.Entry) error {
 
 func (hook *writerHook) Levels() []logrus.Level {
 	return hook.LogLevels
-}
-
-type Logger interface {
 }
 
 func NewLogger(w io.Writer) *logrus.Logger {
