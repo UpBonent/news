@@ -1,8 +1,9 @@
 package config
 
 type Config struct {
-	IsDebug *bool `yaml:"is_debug" env-required:"true"`
-	Listen  struct {
+	IsDebug  *bool  `yaml:"is_debug" env-required:"true"`
+	LogsFile string `yaml:"logs_file"`
+	Listen   struct {
 		BindIP string `yaml:"bind_ip" env-default:"127.0.0.1"`
 		Port   string `yaml:"port" env-default:"8080"`
 	} `yaml:"listen"`

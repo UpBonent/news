@@ -27,7 +27,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	logFile, err := os.OpenFile("logs/all.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0777)
+	logFile, err := os.OpenFile(cfg.LogsFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0777)
 	if err != nil {
 		panic(err)
 	}

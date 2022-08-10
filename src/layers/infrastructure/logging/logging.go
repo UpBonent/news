@@ -34,7 +34,7 @@ func (hook *writerHook) Levels() []logrus.Level {
 	return hook.LogLevels
 }
 
-func NewLogger(w io.Writer) *logrus.Logger {
+func NewLogger(w io.Writer) *logrus.Entry {
 	l := logrus.New()
 	l.SetReportCaller(true)
 	l.Formatter = &logrus.TextFormatter{
@@ -52,5 +52,5 @@ func NewLogger(w io.Writer) *logrus.Logger {
 		LogLevels: logrus.AllLevels,
 	})
 	l.SetLevel(logrus.TraceLevel)
-	return l
+	return logrus.NewEntry(l)
 }
