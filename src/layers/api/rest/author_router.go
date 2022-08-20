@@ -10,12 +10,13 @@ import (
 	"net/http"
 )
 
-//can DELETE
+// can DELETE
 var _ services.RESTMethod = &handlerAuthor{}
 
 const (
-	toCreateAuthor = "/create"
-	toDeleteAuthor = "/delete"
+	wayToCreateAuthor     = "/create"
+	wayToDeleteAuthor     = "/delete"
+	wayToArticlesByAuthor = "/"
 )
 
 type handlerAuthor struct {
@@ -31,11 +32,32 @@ func NewHandlerAuthor(ctx context.Context, s string, r services.AuthorRepository
 func (h *handlerAuthor) Register(e *echo.Echo) {
 	g := e.Group(h.way)
 	g.GET("", h.all)
-	g.POST(toCreateAuthor, h.insert)
-	g.DELETE(toDeleteAuthor, h.delete)
+	g.POST(wayToCreateAuthor, h.create)
+	g.DELETE(wayToDeleteAuthor, h.delete)
 }
 
-func (h *handlerAuthor) insert(c echo.Context) (err error) {
+func (h *handlerAuthor) all(c echo.Context) error {
+	authors, err := h.repository.All(h.ctx)
+	if err != nil {
+		return err
+	}
+
+	var newLine = byte(10)
+
+	for _, auth := range authors {
+		res, err := json.Marshal(auth)
+		res = append(res, newLine)
+		_, err = c.Response().Write(res)
+		if err != nil {
+			return err
+		}
+
+	}
+
+	return c.String(http.StatusOK, "There are authors")
+}
+
+func (h *handlerAuthor) create(c echo.Context) (err error) {
 	var read []byte
 	auth := models.Author{}
 
@@ -63,27 +85,6 @@ func (h *handlerAuthor) insert(c echo.Context) (err error) {
 	return c.String(http.StatusCreated, "yeah, author has been created")
 }
 
-func (h *handlerAuthor) all(c echo.Context) error {
-	authors, err := h.repository.All(h.ctx)
-	if err != nil {
-		return err
-	}
-
-	var newLine = byte(10)
-
-	for _, auth := range authors {
-		res, err := json.Marshal(auth)
-		res = append(res, newLine)
-		_, err = c.Response().Write(res)
-		if err != nil {
-			return err
-		}
-
-	}
-
-	return c.String(http.StatusOK, "There are authors")
-}
-
 func (h *handlerAuthor) delete(c echo.Context) (err error) {
 	var read []byte
 	auth := models.Author{}
@@ -109,5 +110,10 @@ func (h *handlerAuthor) delete(c echo.Context) (err error) {
 	if err != nil {
 		return err
 	}
-	return c.String(http.StatusCreated, "yeah, author has been deleted")
+	return c.String(http.StatusResetContent, "yeah, author has been deleted")
+}
+
+func (h handlerAuthor) articlesByAuthor(c echo.Context) (err error) {
+
+	return c.String(http.StatusOK, "There are articles by this author")
 }

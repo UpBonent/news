@@ -8,9 +8,11 @@ import (
 )
 
 const (
-	NewAuthor     = `INSERT INTO authors(name, surname) VALUES($1, $2)`
-	DeleteAuthor  = `DELETE FROM authors WHERE name = $1 AND surname = $2`
-	AllAuthors    = `SELECT id, name, surname FROM authors`
+	NewAuthor             = `INSERT INTO authors(name, surname) VALUES($1, $2)`
+	DeleteAuthor          = `DELETE FROM authors WHERE name = $1 AND surname = $2`
+	AllAuthors            = `SELECT id, name, surname FROM authors`
+	ArticlesByAuthorQuery = `SELECT header, text, authors.name, authors.surname FROM articles INNER JOIN authors ON articles.id = authors.id;`
+
 	GetAuthorByID = `SELECT name, surname FROM authors WHERE id = $1`
 )
 

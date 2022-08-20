@@ -10,11 +10,10 @@ import (
 	"net/http"
 )
 
-//can DELETE
-var _ services.RESTMethod = &handlerArticle{}
-
 const (
-	toCreateArticle = "/create"
+	wayToCreate = "/create"
+	wayToDelete = "/delete" //root
+	wayToUpDate = "/update"
 )
 
 type handlerArticle struct {
@@ -29,58 +28,12 @@ func NewHandlerArticle(ctx context.Context, s string, art services.ArticleReposi
 }
 
 func (h *handlerArticle) Register(e *echo.Echo) {
-	e.GET(h.way, h.all)
 	g := e.Group(h.way)
-	g.POST(toCreateArticle, h.insert)
-	g.GET(toCreateArticle, h.example)
-}
-
-func (h *handlerArticle) insert(c echo.Context) (err error) {
-	var read []byte
-	art := models.Article{}
-	auth := models.Author{}
-
-	defer func() {
-		err := c.Request().Body.Close()
-		if err != nil {
-			return
-		}
-	}()
-
-	read, err = io.ReadAll(c.Request().Body)
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal(read, &art)
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal(read, &auth)
-	if err != nil {
-		return err
-	}
-
-	err = h.articleRepository.Insert(h.ctx, art, auth)
-	if err != nil {
-		return err
-	}
-
-	return c.String(http.StatusCreated, "yeah, article has been created")
-}
-
-func (h *handlerArticle) example(c echo.Context) (err error) {
-	q := `
-{
-	"header": "",
-	"text": "",
-	"date_publish": "02.8.22 15:04",
-    "name": "Boris",
-    "surname": "Pasternak"
-}
-`
-	return c.String(http.StatusOK, q)
+	g.GET("", h.all)
+	g.POST(wayToCreate, h.create)
+	g.GET(wayToCreate, h.example)
+	g.DELETE(wayToDelete, h.delete)
+	g.PUT(wayToUpDate, h.upDate)
 }
 
 func (h *handlerArticle) all(c echo.Context) error {
@@ -119,7 +72,115 @@ func (h *handlerArticle) all(c echo.Context) error {
 	return c.String(http.StatusOK, "There are all articles")
 }
 
-func (h *handlerArticle) allHeaders(c echo.Context) error {
+func (h *handlerArticle) create(c echo.Context) (err error) {
+	var read []byte
+	art := models.Article{}
+	auth := models.Author{}
+
+	defer func() {
+		err = c.Request().Body.Close()
+		if err != nil {
+			return
+		}
+	}()
+
+	read, err = io.ReadAll(c.Request().Body)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(read, &art)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(read, &auth)
+	if err != nil {
+		return err
+	}
+
+	err = h.articleRepository.Insert(h.ctx, art, auth)
+	if err != nil {
+		return err
+	}
+
+	return c.String(http.StatusCreated, "yeah, article has been created")
+}
+
+// DELETE example letter
+func (h *handlerArticle) example(c echo.Context) (err error) {
+	q := `
+{
+	"header": "",
+	"text": "",
+	"date_publish": "02.8.22 15:04",
+    "name": "Boris",
+    "surname": "Pasternak"
+}
+`
+	return c.String(http.StatusOK, q)
+}
+
+func (h *handlerArticle) delete(c echo.Context) (err error) {
+	var read []byte
+	article := models.Article{}
+	defer func() {
+		err = c.Request().Body.Close()
+		if err != nil {
+			return
+		}
+	}()
+
+	read, err = io.ReadAll(c.Request().Body)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(read, &article)
+	if err != nil {
+		return err
+	}
+
+	err = h.articleRepository.Delete(h.ctx, article)
+	if err != nil {
+		return err
+	}
+
+	return c.String(http.StatusResetContent, "Article was deleted")
+}
+
+func (h *handlerArticle) upDate(c echo.Context) (err error) {
+	var read []byte
+	article := models.Article{}
+	existArticle := struct {
+		Id int `json:"id_exist"`
+	}{}
+	defer func() {
+		err = c.Request().Body.Close()
+		if err != nil {
+			return
+		}
+	}()
+
+	read, err = io.ReadAll(c.Request().Body)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(read, &article)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(read, &existArticle)
+	if err != nil {
+		return err
+	}
+
+	err = h.articleRepository.UpDate(h.ctx, existArticle.Id, article)
+	if err != nil {
+		return err
+	}
 
 	return c.String(http.StatusOK, "There are all headers")
 }

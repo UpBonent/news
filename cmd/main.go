@@ -48,8 +48,9 @@ func main() {
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{Format: `[${time_rfc3339}] ${status} ${method} ${host}${path} ${latency_human}. Error: [${error}]` + "\n"}))
 	e.Use(middleware.Recover())
 	// Routes
-	rest.NewHandlerAuthor(ctx, "/author", authRep).Register(e)
-	rest.NewHandlerArticle(ctx, "/article", artRep, authRep).Register(e)
+	rest.NewHandlerHomePage("/hint").Register(e)
+	rest.NewHandlerAuthor(ctx, "/authors", authRep).Register(e)
+	rest.NewHandlerArticle(ctx, "/articles", artRep, authRep).Register(e)
 	// Start server
 	e.Logger.Fatal(e.Start(cfg.Listen.Port))
 }
