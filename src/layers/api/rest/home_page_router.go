@@ -26,9 +26,9 @@ func (h *homePageStruct) homePage(c echo.Context) (err error) {
 			- /authors/create -- to create a new author;
 			- /author/delete -- to delete exists author.
 
-			- /article -- to view all article from the latest to the earliest;
-			- /article/headers -- to light view article with header only;
-			- /article/create -- to create new article (use GET method to hint).
+			- /articles -- to view all article from the latest to the earliest;
+			- /articles/headers -- to light view article with header only;
+			- /articles/create -- to create new article (use GET method to hint).
 `
 	return c.String(http.StatusOK, hint)
 }

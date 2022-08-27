@@ -8,10 +8,9 @@ import (
 )
 
 const (
-	NewAuthor             = `INSERT INTO authors(name, surname) VALUES($1, $2)`
-	DeleteAuthor          = `DELETE FROM authors WHERE name = $1 AND surname = $2`
-	AllAuthors            = `SELECT id, name, surname FROM authors`
-	ArticlesByAuthorQuery = `SELECT header, text, authors.name, authors.surname FROM articles INNER JOIN authors ON articles.id = authors.id;`
+	NewAuthor    = `INSERT INTO authors(name, surname) VALUES($1, $2)`
+	DeleteAuthor = `DELETE FROM authors WHERE id = $1`
+	AllAuthors   = `SELECT id, name, surname FROM authors`
 
 	GetAuthorByID = `SELECT name, surname FROM authors WHERE id = $1`
 )
@@ -24,9 +23,9 @@ func NewRepository(db *sqlx.DB) services.AuthorRepository {
 	return &Repository{db}
 }
 
-func (r *Repository) Insert(ctx context.Context, a models.Author) error {
-	result := r.db.QueryRowxContext(ctx, NewAuthor, a.Name, a.Surname)
-	return result.Err()
+func (r *Repository) Insert(ctx context.Context, author models.Author) (err error) {
+	_, err = r.db.ExecContext(ctx, NewAuthor, author.Name, author.Surname)
+	return
 }
 
 func (r *Repository) All(ctx context.Context) (authors []models.Author, err error) {
@@ -52,16 +51,18 @@ func (r *Repository) All(ctx context.Context) (authors []models.Author, err erro
 	return
 }
 
-func (r *Repository) Delete(ctx context.Context, a models.Author) error {
-	result := r.db.QueryRowxContext(ctx, DeleteAuthor, a.Name, a.Surname)
-	return result.Err()
+func (r *Repository) Delete(ctx context.Context, id int) (err error) {
+	_, err = r.db.ExecContext(ctx, DeleteAuthor, id)
+	return
 }
 
 func (r *Repository) GetByID(ctx context.Context, id int) (author models.Author, err error) {
+	a := models.Author{}
 	result := r.db.QueryRowxContext(ctx, GetAuthorByID, id)
-	err = result.Scan(&author.Name, &author.Surname)
+	err = result.Scan(&a.Name, &a.Surname)
 	if err != nil {
 		return
 	}
-	return
+	//err = r.db.SelectContext(ctx, &author, GetAuthorByID, id)
+	return a, nil
 }

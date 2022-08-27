@@ -141,7 +141,7 @@ func (h *handlerArticle) delete(c echo.Context) (err error) {
 		return err
 	}
 
-	err = h.articleRepository.Delete(h.ctx, article)
+	err = h.articleRepository.Delete(h.ctx, article.Id)
 	if err != nil {
 		return err
 	}
