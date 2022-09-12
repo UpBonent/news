@@ -3,7 +3,7 @@ package rest
 import (
 	"bytes"
 	"context"
-	"fmt"
+	"github.com/UpBonent/news/src/common/models"
 	"github.com/UpBonent/news/src/common/services"
 	mockServices "github.com/UpBonent/news/src/common/services/mocks"
 	"github.com/golang/mock/gomock"
@@ -47,8 +47,8 @@ func Test_handlerAuthor_all(t *testing.T) {
 }
 
 func Test_handlerAuthor_create(t *testing.T) {
-	//ctx := context.Background()
-	type mockBehavior func(s *mockServices.MockAuthorHandler, e *echo.Echo, c echo.Context)
+	ctx := context.Background()
+	type mockBehavior func(s *mockServices.MockAuthorRepository, ctx context.Context, author models.Author)
 
 	tests := []struct {
 		name               string
@@ -60,10 +60,8 @@ func Test_handlerAuthor_create(t *testing.T) {
 		{
 			name:      "Positive",
 			inputBody: `{"name": "Bob", "surname": "Seger"}`,
-			mockBehavior: func(s *mockServices.MockAuthorHandler, e *echo.Echo, c echo.Context) {
-				s.EXPECT().Register(e)
-
-				s.EXPECT().Create(c).Return(nil)
+			mockBehavior: func(s *mockServices.MockAuthorRepository, ctx context.Context, author models.Author) {
+				s.EXPECT().Insert(ctx, author)
 			},
 			expectedStatusCode: http.StatusOK,
 			expectedResponse:   "yeah, author has been created",
@@ -76,7 +74,8 @@ func Test_handlerAuthor_create(t *testing.T) {
 			controller := gomock.NewController(t)
 			defer controller.Finish()
 
-			mockHandler := mockServices.NewMockAuthorHandler(controller)
+			repo := mockServices.NewMockAuthorRepository(controller)
+			tt.mockBehavior(repo, ctx)
 
 			//Test Server
 			e := echo.New()
@@ -89,13 +88,12 @@ func Test_handlerAuthor_create(t *testing.T) {
 			req := httptest.NewRequest("POST", wayToCreate, bytes.NewBufferString(tt.inputBody))
 
 			//Perform Request
-			contx := e.NewContext(req, w)
-			contx.SetPath(wayToCreate)
-
-			fmt.Println("HERE !!!!!!", contx.Response())
-			tt.mockBehavior(mockHandler, e, contx)
-
-			e.ServeHTTP(w, req)
+			//contx := e.NewContext(req, w)
+			//contx.SetPath(wayToCreate)
+			//
+			//tt.mockBehavior(mockHandler, e, contx)
+			//
+			//e.ServeHTTP(w, req)
 
 			assert.Equal(t, tt.expectedStatusCode, w.Code)
 			assert.Equal(t, tt.expectedResponse, w.Body.String())

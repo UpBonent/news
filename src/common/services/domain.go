@@ -1,5 +1,7 @@
 package services
 
+//go:generate mockgen -source=domain.go -destination=mocks/mock.go
+
 import (
 	"context"
 	"github.com/UpBonent/news/src/common/models"
@@ -19,9 +21,4 @@ type AuthorRepository interface {
 
 	GetByID(ctx context.Context, id int) (author models.Author, err error)
 	GetByName(ctx context.Context, author models.Author) (id int, err error)
-}
-
-type Repository struct {
-	ArticleRepository
-	AuthorRepository
 }
