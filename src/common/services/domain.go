@@ -6,7 +6,7 @@ import (
 )
 
 type ArticleRepository interface {
-	Insert(ctx context.Context, article models.Article, author models.Author) error
+	Insert(ctx context.Context, article models.Article, id int) error
 	All(ctx context.Context) (articles []models.Article, err error)
 	Delete(ctx context.Context, id int) error
 	UpDate(ctx context.Context, existArticle int, article models.Article) error
@@ -18,4 +18,10 @@ type AuthorRepository interface {
 	Delete(ctx context.Context, id int) error
 
 	GetByID(ctx context.Context, id int) (author models.Author, err error)
+	GetByName(ctx context.Context, author models.Author) (id int, err error)
+}
+
+type Repository struct {
+	ArticleRepository
+	AuthorRepository
 }
