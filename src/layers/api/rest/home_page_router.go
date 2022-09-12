@@ -10,23 +10,23 @@ type homePageStruct struct {
 	way string
 }
 
-func NewHandlerHomePage(way string) services.RESTMethod {
+func NewHandlerHomePage(way string) services.HomePageHandler {
 	return &homePageStruct{way: way}
 }
 
 func (h *homePageStruct) Register(c *echo.Echo) {
-	c.GET(h.way, h.homePage)
+	c.GET(h.way, h.HomePage)
 }
 
-func (h *homePageStruct) homePage(c echo.Context) (err error) {
+func (h *homePageStruct) HomePage(c echo.Context) (err error) {
 	hint := `
 	Welcome! There's a news portal.
 		You can use these options:
-			- /authors -- to view all author in our portal;
+			- /authors -- to view All author in our portal;
 			- /authors/create -- to create a new author;
 			- /author/delete -- to delete exists author.
 
-			- /articles -- to view all article from the latest to the earliest;
+			- /articles -- to view All article from the latest to the earliest;
 			- /articles/headers -- to light view article with header only;
 			- /articles/create -- to create new article (use GET method to hint).
 `

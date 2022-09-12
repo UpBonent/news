@@ -263,3 +263,59 @@ func TestRepository_GetByID(t *testing.T) {
 		})
 	}
 }
+
+func TestRepository_GetByName(t *testing.T) {
+	sqlDB, mock, err := sqlmock.New()
+	if err != nil {
+		panic(err)
+	}
+
+	ctx := context.Background()
+	r := NewRepository(sqlx.NewDb(sqlDB, "postgres"))
+
+	type args struct {
+		author models.Author
+	}
+	type mockBehavior func(args args)
+
+	tests := []struct {
+		name         string
+		args         args
+		mockBehavior mockBehavior
+		wantId       int
+		wantErr      bool
+	}{
+		{
+			name: "Positive",
+			args: args{
+				author: models.Author{
+					Id:      0,
+					Name:    "Bob",
+					Surname: "Seger",
+				},
+			},
+			mockBehavior: func(args args) {
+				rows := mock.NewRows([]string{"id"}).AddRow(1)
+
+				mock.ExpectQuery("SELECT id FROM authors WHERE(.+)").
+					WithArgs(args.author.Name, args.author.Surname).
+					WillReturnRows(rows)
+			},
+			wantId:  1,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.mockBehavior(tt.args)
+
+			gotId, err := r.GetByName(ctx, tt.args.author)
+			if tt.wantErr == true {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.wantId, gotId)
+			}
+		})
+	}
+}

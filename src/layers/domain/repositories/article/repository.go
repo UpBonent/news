@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	create = `INSERT INTO articles(header, text, date_create, date_publish, id_authors) VALUES ($1, $2, $3, $4, (SELECT id FROM authors WHERE name = $5 AND surname = $6))`
+	create = `INSERT INTO articles(header, text, date_create, date_publish, id_authors) VALUES ($1, $2, $3, $4, $5)`
 	all    = `SELECT id, header, text, date_publish, id_authors FROM articles`
 	del    = `DELETE FROM articles WHERE id = $1`
 
@@ -30,7 +30,7 @@ func NewRepository(db *sqlx.DB) services.ArticleRepository {
 	return &Repository{db}
 }
 
-func (r *Repository) Insert(ctx context.Context, article models.Article, author models.Author) (err error) {
+func (r *Repository) Insert(ctx context.Context, article models.Article, id int) (err error) {
 	dateCreate := time.Now().Round(time.Minute)
 
 	datePublish, err := time.Parse("02.01.06 15:04", article.DatePublish)
@@ -38,7 +38,7 @@ func (r *Repository) Insert(ctx context.Context, article models.Article, author 
 		return
 	}
 
-	_, err = r.db.ExecContext(ctx, create, article.Header, article.Text, dateCreate, datePublish, author.Name, author.Surname)
+	_, err = r.db.ExecContext(ctx, create, article.Header, article.Text, dateCreate, datePublish, id)
 	return
 }
 

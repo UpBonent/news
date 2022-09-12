@@ -12,7 +12,8 @@ const (
 	DeleteAuthor = `DELETE FROM authors WHERE id = $1`
 	AllAuthors   = `SELECT id, name, surname FROM authors`
 
-	GetAuthorByID = `SELECT name, surname FROM authors WHERE id = $1`
+	GetAuthorByID   = `SELECT name, surname FROM authors WHERE id = $1`
+	GetAuthorByName = `SELECT id FROM authors WHERE name = $1 AND surname = $2`
 )
 
 type Repository struct {
@@ -60,9 +61,11 @@ func (r *Repository) GetByID(ctx context.Context, id int) (author models.Author,
 	a := models.Author{}
 	result := r.db.QueryRowxContext(ctx, GetAuthorByID, id)
 	err = result.Scan(&a.Name, &a.Surname)
-	if err != nil {
-		return
-	}
-	//err = r.db.SelectContext(ctx, &author, GetAuthorByID, id)
-	return a, nil
+	return
+}
+
+func (r *Repository) GetByName(ctx context.Context, author models.Author) (id int, err error) {
+	result := r.db.QueryRowContext(ctx, GetAuthorByName, author.Name, author.Surname)
+	err = result.Scan(&id)
+	return
 }

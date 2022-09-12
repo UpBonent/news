@@ -24,8 +24,8 @@ func TestRepository_Insert(t *testing.T) {
 	r := NewRepository(sqlx.NewDb(sqlDB, "postgres"))
 
 	type args struct {
-		art  models.Article
-		auth models.Author
+		art models.Article
+		id  int
 	}
 	type mockBehavior func(args args)
 
@@ -43,10 +43,7 @@ func TestRepository_Insert(t *testing.T) {
 					Text:        "There's long long long long long test text",
 					DatePublish: "01.01.22 12:00",
 				},
-				auth: models.Author{
-					Name:    "Bob",
-					Surname: "Seger",
-				},
+				id: 1,
 			},
 			mockBehavior: func(args args) {
 				dateCreate := time.Now().Round(time.Minute)
@@ -54,7 +51,7 @@ func TestRepository_Insert(t *testing.T) {
 				assert.NoError(t, err)
 
 				mock.ExpectExec("INSERT INTO articles").
-					WithArgs(args.art.Header, args.art.Text, dateCreate, parseDatePublish, args.auth.Name, args.auth.Surname).
+					WithArgs(args.art.Header, args.art.Text, dateCreate, parseDatePublish, args.id).
 					WillReturnResult(bung)
 			},
 			wantErr: false,
@@ -67,10 +64,7 @@ func TestRepository_Insert(t *testing.T) {
 					Text:        "",
 					DatePublish: "01.01.22 12:00",
 				},
-				auth: models.Author{
-					Name:    "Bob",
-					Surname: "Seger",
-				},
+				id: 1,
 			},
 			mockBehavior: func(args args) {
 				dateCreate := time.Now().Round(time.Minute)
@@ -78,7 +72,7 @@ func TestRepository_Insert(t *testing.T) {
 				assert.NoError(t, err)
 
 				mock.ExpectExec("INSERT INTO articles").
-					WithArgs(args.art.Header, args.art.Text, dateCreate, parseDatePublish, args.auth.Name, args.auth.Surname).
+					WithArgs(args.art.Header, args.art.Text, dateCreate, parseDatePublish, args.id).
 					WillReturnResult(bung).WillReturnError(errors.New("insert error"))
 			},
 			wantErr: true,
@@ -101,10 +95,7 @@ func TestRepository_Insert(t *testing.T) {
 					Text:        "There's long long long long long test text",
 					DatePublish: "01.01.22 12:00",
 				},
-				auth: models.Author{
-					Name:    "",
-					Surname: "",
-				},
+				id: 0,
 			},
 			mockBehavior: func(args args) {
 				dateCreate := time.Now().Round(time.Minute)
@@ -112,7 +103,7 @@ func TestRepository_Insert(t *testing.T) {
 				assert.NoError(t, err)
 
 				mock.ExpectExec("INSERT INTO articles").
-					WithArgs(args.art.Header, args.art.Text, dateCreate, parseDatePublish, args.auth.Name, args.auth.Surname).
+					WithArgs(args.art.Header, args.art.Text, dateCreate, parseDatePublish, args.id).
 					WillReturnResult(bung).WillReturnError(sql.ErrNoRows)
 			},
 			wantErr: true,
@@ -123,7 +114,7 @@ func TestRepository_Insert(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockBehavior(tt.args)
 
-			err = r.Insert(ctx, tt.args.art, tt.args.auth)
+			err = r.Insert(ctx, tt.args.art, tt.args.id)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {

@@ -23,20 +23,20 @@ type handlerArticle struct {
 	authorRepository  services.AuthorRepository
 }
 
-func NewHandlerArticle(ctx context.Context, s string, art services.ArticleRepository, auth services.AuthorRepository) services.RESTMethod {
-	return &handlerArticle{ctx, s, art, auth}
+func NewHandlerArticle(ctx context.Context, s string, article services.ArticleRepository, author services.AuthorRepository) services.ArticleHandler {
+	return &handlerArticle{ctx, s, article, author}
 }
 
 func (h *handlerArticle) Register(e *echo.Echo) {
 	g := e.Group(h.way)
-	g.GET("", h.all)
-	g.POST(wayToCreate, h.create)
+	g.GET("", h.All)
+	g.POST(wayToCreate, h.Create)
 	g.GET(wayToCreate, h.example)
-	g.DELETE(wayToDelete, h.delete)
-	g.PUT(wayToUpDate, h.upDate)
+	g.DELETE(wayToDelete, h.Delete)
+	g.PUT(wayToUpDate, h.Update)
 }
 
-func (h *handlerArticle) all(c echo.Context) error {
+func (h *handlerArticle) All(c echo.Context) error {
 	articles, err := h.articleRepository.All(h.ctx)
 	if err != nil {
 		return err
@@ -69,13 +69,13 @@ func (h *handlerArticle) all(c echo.Context) error {
 		}
 	}
 
-	return c.String(http.StatusOK, "There are all articles")
+	return c.String(http.StatusOK, "There are All articles")
 }
 
-func (h *handlerArticle) create(c echo.Context) (err error) {
+func (h *handlerArticle) Create(c echo.Context) (err error) {
 	var read []byte
-	art := models.Article{}
-	auth := models.Author{}
+	article := models.Article{}
+	author := models.Author{}
 
 	defer func() {
 		err = c.Request().Body.Close()
@@ -89,17 +89,19 @@ func (h *handlerArticle) create(c echo.Context) (err error) {
 		return err
 	}
 
-	err = json.Unmarshal(read, &art)
+	err = json.Unmarshal(read, &article)
 	if err != nil {
 		return err
 	}
 
-	err = json.Unmarshal(read, &auth)
+	err = json.Unmarshal(read, &author)
 	if err != nil {
 		return err
 	}
 
-	err = h.articleRepository.Insert(h.ctx, art, auth)
+	id, err := h.authorRepository.GetByName(h.ctx, author)
+
+	err = h.articleRepository.Insert(h.ctx, article, id)
 	if err != nil {
 		return err
 	}
@@ -121,7 +123,7 @@ func (h *handlerArticle) example(c echo.Context) (err error) {
 	return c.String(http.StatusOK, q)
 }
 
-func (h *handlerArticle) delete(c echo.Context) (err error) {
+func (h *handlerArticle) Delete(c echo.Context) (err error) {
 	var read []byte
 	article := models.Article{}
 	defer func() {
@@ -149,7 +151,7 @@ func (h *handlerArticle) delete(c echo.Context) (err error) {
 	return c.String(http.StatusResetContent, "Article was deleted")
 }
 
-func (h *handlerArticle) upDate(c echo.Context) (err error) {
+func (h *handlerArticle) Update(c echo.Context) (err error) {
 	var read []byte
 	article := models.Article{}
 	existArticle := struct {
@@ -182,5 +184,5 @@ func (h *handlerArticle) upDate(c echo.Context) (err error) {
 		return err
 	}
 
-	return c.String(http.StatusOK, "There are all headers")
+	return c.String(http.StatusOK, "There are All headers")
 }
