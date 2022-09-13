@@ -16,24 +16,24 @@ const (
 	wayToArticlesByAuthor = "/"
 )
 
-type HandlerAuthor struct {
+type handlerAuthor struct {
 	ctx        context.Context
 	way        string
 	repository services.AuthorRepository
 }
 
-func NewHandlerAuthor(ctx context.Context, s string, rep services.AuthorRepository) services.AuthorHandler {
-	return &HandlerAuthor{ctx, s, rep}
+func NewHandlerAuthor(ctx context.Context, s string, rep services.AuthorRepository) services.Handler {
+	return &handlerAuthor{ctx, s, rep}
 }
 
-func (h *HandlerAuthor) Register(e *echo.Echo) {
+func (h *handlerAuthor) Register(e *echo.Echo) {
 	g := e.Group(h.way)
-	g.GET("", h.All)
-	g.POST(wayToCreateAuthor, h.Create)
-	g.DELETE(wayToDeleteAuthor, h.Delete)
+	g.GET("", h.all)
+	g.POST(wayToCreateAuthor, h.create)
+	g.DELETE(wayToDeleteAuthor, h.delete)
 }
 
-func (h *HandlerAuthor) All(c echo.Context) error {
+func (h *handlerAuthor) all(c echo.Context) error {
 	authors, err := h.repository.All(h.ctx)
 	if err != nil {
 		return err
@@ -54,7 +54,7 @@ func (h *HandlerAuthor) All(c echo.Context) error {
 	return c.String(http.StatusOK, "There are authors")
 }
 
-func (h *HandlerAuthor) Create(c echo.Context) (err error) {
+func (h *handlerAuthor) create(c echo.Context) (err error) {
 	var read []byte
 	author := models.Author{}
 
@@ -67,22 +67,22 @@ func (h *HandlerAuthor) Create(c echo.Context) (err error) {
 
 	read, err = io.ReadAll(c.Request().Body)
 	if err != nil {
-		return err
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	err = json.Unmarshal(read, &author)
 	if err != nil {
-		return err
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	err = h.repository.Insert(h.ctx, author)
 	if err != nil {
-		return err
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 	return c.String(http.StatusCreated, "yeah, author has been created")
 }
 
-func (h *HandlerAuthor) Delete(c echo.Context) (err error) {
+func (h *handlerAuthor) delete(c echo.Context) (err error) {
 	var read []byte
 	author := models.Author{}
 
@@ -95,23 +95,23 @@ func (h *HandlerAuthor) Delete(c echo.Context) (err error) {
 
 	read, err = io.ReadAll(c.Request().Body)
 	if err != nil {
-		return err
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	err = json.Unmarshal(read, &author)
 	if err != nil {
-		return err
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	err = h.repository.Delete(h.ctx, author.Id)
 	if err != nil {
-		return err
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 	return c.String(http.StatusResetContent, "yeah, author has been deleted")
 }
 
 //
-//func (h HandlerAuthor) articlesByAuthor(c echo.Context) (err error) {
+//func (h handlerAuthor) articlesByAuthor(c echo.Context) (err error) {
 //
 //	return c.String(http.StatusOK, "There are articles by this author")
 //}

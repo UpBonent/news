@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"github.com/UpBonent/news/src/layers/api/rest"
-	"github.com/UpBonent/news/src/layers/domain/repositories"
-	"github.com/UpBonent/news/src/layers/infrastructure/url"
+	"github.com/UpBonent/news/src/layers/domain/repositories/article"
+	"github.com/UpBonent/news/src/layers/domain/repositories/author"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"log"
@@ -39,7 +39,8 @@ func main() {
 		panic(err)
 	}
 
-	rep := repositories.NewRepository(db)
+	authorRepository := author.NewRepository(db)
+	articleRepository := article.NewRepository(db)
 
 	// Echo instance
 	e := echo.New()
@@ -47,18 +48,10 @@ func main() {
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{Format: `[${time_rfc3339}] ${status} ${method} ${host}${path} ${latency_human}. Error: [${error}]` + "\n"}))
 	e.Use(middleware.Recover())
 	// Routes
-	ways := url.Ways{
-		Home: "/hint", Author: "/authors", Article: "/articles",
-	}
+	rest.NewHandlerHomePage("/").Register(e)
+	rest.NewHandlerAuthor(ctx, "/authors", authorRepository).Register(e)
+	rest.NewHandlerArticle(ctx, "/articles", articleRepository, authorRepository).Register(e)
 
-	service := rest.NewService(ctx, ways, rep)
-
-	service.HomePageHandler.Register(e)
-	service.AuthorHandler.Register(e)
-	service.ArticleHandler.Register(e)
-	//rest.NewHandlerHomePage("/hint").Register(e)
-	//rest.NewHandlerAuthor(ctx, "/authors", rep.AuthorRepository).Register(e)
-	//rest.NewHandlerArticle(ctx, "/articles", rep).Register(e)
 	// Start server
 	e.Logger.Fatal(e.Start(cfg.Listen.Port))
 }

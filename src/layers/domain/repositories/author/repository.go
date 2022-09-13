@@ -5,11 +5,12 @@ import (
 	"github.com/UpBonent/news/src/common/models"
 	"github.com/UpBonent/news/src/common/services"
 	"github.com/jmoiron/sqlx"
+	"github.com/pkg/errors"
 )
 
 const (
 	NewAuthor    = `INSERT INTO authors(name, surname) VALUES($1, $2)`
-	DeleteAuthor = `DELETE FROM authors WHERE id = $1`
+	DeleteAuthor = `DELETE FROM authors WHERE id = $1 RETURNING id`
 	AllAuthors   = `SELECT id, name, surname FROM authors`
 
 	GetAuthorByID   = `SELECT name, surname FROM authors WHERE id = $1`
@@ -25,7 +26,12 @@ func NewRepository(db *sqlx.DB) services.AuthorRepository {
 }
 
 func (r *Repository) Insert(ctx context.Context, author models.Author) (err error) {
-	_, err = r.db.ExecContext(ctx, NewAuthor, author.Name, author.Surname)
+	if author.Name == "" || author.Surname == "" {
+		return errors.New("author's fields is empty")
+	}
+	result, err := r.db.ExecContext(ctx, NewAuthor, author.Name, author.Surname)
+	_, err = result.LastInsertId()
+
 	return
 }
 
@@ -53,18 +59,28 @@ func (r *Repository) All(ctx context.Context) (authors []models.Author, err erro
 }
 
 func (r *Repository) Delete(ctx context.Context, id int) (err error) {
+	if id == 0 {
+		return errors.New("author's id is empty")
+	}
 	_, err = r.db.ExecContext(ctx, DeleteAuthor, id)
 	return
 }
 
 func (r *Repository) GetByID(ctx context.Context, id int) (author models.Author, err error) {
-	a := models.Author{}
+	if id == 0 {
+		return author, errors.New("author's id is empty")
+	}
+
 	result := r.db.QueryRowxContext(ctx, GetAuthorByID, id)
-	err = result.Scan(&a.Name, &a.Surname)
+	err = result.Scan(&author.Name, &author.Surname)
 	return
 }
 
 func (r *Repository) GetByName(ctx context.Context, author models.Author) (id int, err error) {
+	if author.Name == "" || author.Surname == "" {
+		return id, errors.New("author's fields is empty")
+	}
+
 	result := r.db.QueryRowContext(ctx, GetAuthorByName, author.Name, author.Surname)
 	err = result.Scan(&id)
 	return

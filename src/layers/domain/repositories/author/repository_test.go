@@ -2,11 +2,9 @@ package author
 
 import (
 	"context"
-	"database/sql"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/UpBonent/news/src/common/models"
 	"github.com/jmoiron/sqlx"
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -56,12 +54,8 @@ func TestRepository_Insert(t *testing.T) {
 					Surname: "",
 				},
 			},
-			mockBehavior: func(args args) {
-				mock.ExpectExec("INSERT INTO authors").
-					WithArgs(args.author.Name, args.author.Surname).
-					WillReturnError(errors.New("empty fields"))
-			},
-			wantErr: true,
+			mockBehavior: func(args args) {},
+			wantErr:      true,
 		},
 	}
 
@@ -174,10 +168,8 @@ func TestRepository_Delete(t *testing.T) {
 					Id: 1,
 				},
 			},
-			mockBehavior: func(id int) {
-				mock.ExpectExec("DELETE FROM authors WHERE (.+)").WithArgs(id).WillReturnError(sql.ErrNoRows)
-			},
-			wantErr: true,
+			mockBehavior: func(id int) {},
+			wantErr:      true,
 		},
 	}
 	for _, tt := range tests {
