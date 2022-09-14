@@ -32,7 +32,7 @@ func (h *handlerArticle) Register(e *echo.Echo) {
 	g.GET("", h.all)
 	g.POST(wayToCreate, h.create)
 	g.GET(wayToCreate, h.example)
-	g.DELETE(wayToDelete, h.delete)
+	//g.DELETE(wayToDelete, h.delete)
 	g.PUT(wayToUpDate, h.update)
 }
 
@@ -123,33 +123,33 @@ func (h *handlerArticle) example(c echo.Context) (err error) {
 	return c.String(http.StatusOK, q)
 }
 
-func (h *handlerArticle) delete(c echo.Context) (err error) {
-	var read []byte
-	article := models.Article{}
-	defer func() {
-		err = c.Request().Body.Close()
-		if err != nil {
-			return
-		}
-	}()
-
-	read, err = io.ReadAll(c.Request().Body)
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal(read, &article)
-	if err != nil {
-		return err
-	}
-
-	err = h.articleRepository.Delete(h.ctx, article.Id)
-	if err != nil {
-		return err
-	}
-
-	return c.String(http.StatusResetContent, "Article was deleted")
-}
+//func (h *handlerArticle) delete(c echo.Context) (err error) {
+//	var read []byte
+//	article := models.Article{}
+//	defer func() {
+//		err = c.Request().Body.Close()
+//		if err != nil {
+//			return
+//		}
+//	}()
+//
+//	read, err = io.ReadAll(c.Request().Body)
+//	if err != nil {
+//		return err
+//	}
+//
+//	err = json.Unmarshal(read, &article)
+//	if err != nil {
+//		return err
+//	}
+//
+//	err = h.articleRepository.Delete(h.ctx, article.Id)
+//	if err != nil {
+//		return err
+//	}
+//
+//	return c.String(http.StatusResetContent, "Article was deleted")
+//}
 
 func (h *handlerArticle) update(c echo.Context) (err error) {
 	var read []byte
@@ -179,7 +179,7 @@ func (h *handlerArticle) update(c echo.Context) (err error) {
 		return err
 	}
 
-	err = h.articleRepository.UpDate(h.ctx, existArticle.Id, article)
+	err = h.articleRepository.Update(h.ctx, existArticle.Id, article)
 	if err != nil {
 		return err
 	}

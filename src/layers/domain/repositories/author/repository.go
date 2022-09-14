@@ -5,11 +5,12 @@ import (
 	"github.com/UpBonent/news/src/common/models"
 	"github.com/UpBonent/news/src/common/services"
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 	"github.com/pkg/errors"
 )
 
 const (
-	NewAuthor    = `INSERT INTO authors(name, surname) VALUES($1, $2)`
+	NewAuthor    = `INSERT INTO authors(name, surname) VALUES($1, $2) RETURNING id`
 	DeleteAuthor = `DELETE FROM authors WHERE id = $1 RETURNING id`
 	AllAuthors   = `SELECT id, name, surname FROM authors`
 
@@ -27,11 +28,10 @@ func NewRepository(db *sqlx.DB) services.AuthorRepository {
 
 func (r *Repository) Insert(ctx context.Context, author models.Author) (err error) {
 	if author.Name == "" || author.Surname == "" {
-		return errors.New("author's fields is empty")
+		return errors.New("error: author's fields is empty")
 	}
-	result, err := r.db.ExecContext(ctx, NewAuthor, author.Name, author.Surname)
-	_, err = result.LastInsertId()
-
+	result := r.db.QueryRowxContext(ctx, NewAuthor, author.Name, author.Surname)
+	err = result.Err()
 	return
 }
 
@@ -58,13 +58,19 @@ func (r *Repository) All(ctx context.Context) (authors []models.Author, err erro
 	return
 }
 
-func (r *Repository) Delete(ctx context.Context, id int) (err error) {
-	if id == 0 {
-		return errors.New("author's id is empty")
-	}
-	_, err = r.db.ExecContext(ctx, DeleteAuthor, id)
-	return
-}
+//func (r *Repository) Delete(ctx context.Context, id int) (err error) {
+//	if id == 0 {
+//		return errors.New("author's id is empty")
+//	}
+//	result := r.db.QueryRowContext(ctx, DeleteAuthor, id)
+//	if err = result.Err(); err != nil {
+//		return
+//	}
+//	if result == nil {
+//		return errors.New("author does not exist")
+//	}
+//	return
+//}
 
 func (r *Repository) GetByID(ctx context.Context, id int) (author models.Author, err error) {
 	if id == 0 {

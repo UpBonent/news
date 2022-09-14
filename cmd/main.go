@@ -49,7 +49,7 @@ func main() {
 	e.Use(middleware.Recover())
 	// Routes
 	rest.NewHandlerHomePage("/").Register(e)
-	rest.NewHandlerAuthor(ctx, "/authors", authorRepository).Register(e)
+	rest.NewHandlerAuthor(ctx, "/authors", articleRepository, authorRepository).Register(e)
 	rest.NewHandlerArticle(ctx, "/articles", articleRepository, authorRepository).Register(e)
 
 	// Start server

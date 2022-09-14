@@ -70,14 +70,14 @@ func (r *Repository) All(ctx context.Context) (articles []models.Article, err er
 	return
 }
 
-func (r *Repository) Delete(ctx context.Context, id int) (err error) {
+//func (r *Repository) Delete(ctx context.Context, id int) (err error) {
+//
+//	_, err = r.db.ExecContext(ctx, del, id)
+//
+//	return
+//}
 
-	_, err = r.db.ExecContext(ctx, del, id)
-
-	return
-}
-
-func (r *Repository) UpDate(ctx context.Context, existArticle int, article models.Article) (err error) {
+func (r *Repository) Update(ctx context.Context, existArticle int, article models.Article) (err error) {
 	count := 1
 
 	if article.Header != "" {
@@ -115,4 +115,8 @@ func (r *Repository) UpDate(ctx context.Context, existArticle int, article model
 	}
 
 	return
+}
+
+func (r *Repository) GetByAuthorID(ctx context.Context, id int) (articles []models.Article, err error) {
+	
 }

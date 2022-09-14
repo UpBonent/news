@@ -12,8 +12,6 @@ import (
 	"time"
 )
 
-var bung = sqlmock.NewResult(1, 1)
-
 func TestRepository_Insert(t *testing.T) {
 	sqlDB, mock, err := sqlmock.New()
 	if err != nil {
@@ -52,7 +50,7 @@ func TestRepository_Insert(t *testing.T) {
 
 				mock.ExpectExec("INSERT INTO articles").
 					WithArgs(args.art.Header, args.art.Text, dateCreate, parseDatePublish, args.id).
-					WillReturnResult(bung)
+					WillReturnResult(sqlmock.NewResult(1, 1))
 			},
 			wantErr: false,
 		},
@@ -73,7 +71,8 @@ func TestRepository_Insert(t *testing.T) {
 
 				mock.ExpectExec("INSERT INTO articles").
 					WithArgs(args.art.Header, args.art.Text, dateCreate, parseDatePublish, args.id).
-					WillReturnResult(bung).WillReturnError(errors.New("insert error"))
+					WillReturnResult(sqlmock.NewResult(1, 1)).
+					WillReturnError(errors.New("insert error"))
 			},
 			wantErr: true,
 		},
@@ -104,7 +103,8 @@ func TestRepository_Insert(t *testing.T) {
 
 				mock.ExpectExec("INSERT INTO articles").
 					WithArgs(args.art.Header, args.art.Text, dateCreate, parseDatePublish, args.id).
-					WillReturnResult(bung).WillReturnError(sql.ErrNoRows)
+					WillReturnResult(sqlmock.NewResult(1, 1)).
+					WillReturnError(sql.ErrNoRows)
 			},
 			wantErr: true,
 		},
@@ -210,78 +210,78 @@ func TestRepository_All(t *testing.T) {
 	}
 }
 
-func TestRepository_Delete(t *testing.T) {
-	sqlDB, mock, err := sqlmock.New()
-	if err != nil {
-		panic(err)
-	}
-
-	ctx := context.Background()
-	r := NewRepository(sqlx.NewDb(sqlDB, "postgres"))
-
-	type args struct {
-		article models.Article
-	}
-	type mockBehavior func(args args)
-
-	tests := []struct {
-		name         string
-		args         args
-		mockBehavior mockBehavior
-		wantErr      bool
-	}{
-		{
-			name: "Positive",
-			args: args{
-				article: models.Article{
-					Id: 1,
-				},
-			},
-			mockBehavior: func(args args) {
-				mock.ExpectExec("DELETE FROM articles WHERE (.+)").
-					WithArgs(args.article.Id).
-					WillReturnResult(bung)
-			},
-			wantErr: false,
-		},
-		{
-			name: "Not Found",
-			args: args{
-				article: models.Article{
-					Id: 0,
-				},
-			},
-			mockBehavior: func(args args) {
-				mock.ExpectExec("DELETE FROM articles WHERE (.+)").
-					WithArgs(args.article.Id).
-					WillReturnError(sql.ErrNoRows)
-			},
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.mockBehavior(tt.args)
-
-			err = r.Delete(ctx, tt.args.article.Id)
-			if tt.wantErr {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-			}
-		})
-	}
-
-	mock.ExpectClose()
-
-	err = sqlDB.Close()
-	if err != nil {
-		panic(errors.Wrap(err, "can't close connection"))
-	}
-}
+//func TestRepository_Delete(t *testing.T) {
+//	sqlDB, mock, err := sqlmock.New()
+//	if err != nil {
+//		panic(err)
+//	}
+//
+//	ctx := context.Background()
+//	r := NewRepository(sqlx.NewDb(sqlDB, "postgres"))
+//
+//	type args struct {
+//		article models.Article
+//	}
+//	type mockBehavior func(args args)
+//
+//	tests := []struct {
+//		name         string
+//		args         args
+//		mockBehavior mockBehavior
+//		wantErr      bool
+//	}{
+//		{
+//			name: "Positive",
+//			args: args{
+//				article: models.Article{
+//					Id: 1,
+//				},
+//			},
+//			mockBehavior: func(args args) {
+//				mock.ExpectExec("DELETE FROM articles WHERE (.+)").
+//					WithArgs(args.article.Id).
+//					WillReturnResult(bung)
+//			},
+//			wantErr: false,
+//		},
+//		{
+//			name: "Not Found",
+//			args: args{
+//				article: models.Article{
+//					Id: 0,
+//				},
+//			},
+//			mockBehavior: func(args args) {
+//				mock.ExpectExec("DELETE FROM articles WHERE (.+)").
+//					WithArgs(args.article.Id).
+//					WillReturnError(sql.ErrNoRows)
+//			},
+//			wantErr: true,
+//		},
+//	}
+//	for _, tt := range tests {
+//		t.Run(tt.name, func(t *testing.T) {
+//			tt.mockBehavior(tt.args)
+//
+//			err = r.Delete(ctx, tt.args.article.Id)
+//			if tt.wantErr {
+//				assert.Error(t, err)
+//			} else {
+//				assert.NoError(t, err)
+//			}
+//		})
+//	}
+//
+//	mock.ExpectClose()
+//
+//	err = sqlDB.Close()
+//	if err != nil {
+//		panic(errors.Wrap(err, "can't close connection"))
+//	}
+//}
 
 // what about "not found" test case???
-func TestRepository_UpDate(t *testing.T) {
+func TestRepository_Update(t *testing.T) {
 	sqlDB, mock, err := sqlmock.New()
 	if err != nil {
 		panic(err)
@@ -320,15 +320,15 @@ func TestRepository_UpDate(t *testing.T) {
 
 				mock.ExpectExec("UPDATE articles SET (.+) WHERE (.+)").
 					WithArgs(args.article.Header, args.existArticle).
-					WillReturnResult(bung)
+					WillReturnResult(sqlmock.NewResult(1, 1))
 
 				mock.ExpectExec("UPDATE articles SET (.+) WHERE (.+)").
 					WithArgs(args.article.Text, args.existArticle).
-					WillReturnResult(bung)
+					WillReturnResult(sqlmock.NewResult(1, 1))
 
 				mock.ExpectExec("UPDATE articles SET (.+) WHERE (.+)").
 					WithArgs(date, args.existArticle).
-					WillReturnResult(bung)
+					WillReturnResult(sqlmock.NewResult(1, 1))
 			},
 			wantErr: false,
 		},
@@ -370,7 +370,7 @@ func TestRepository_UpDate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockBehavior(tt.args)
 
-			err = r.UpDate(ctx, tt.args.existArticle, tt.args.article)
+			err = r.Update(ctx, tt.args.existArticle, tt.args.article)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {

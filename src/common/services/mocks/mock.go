@@ -79,9 +79,9 @@ func (mr *MockArticleRepositoryMockRecorder) Insert(ctx, article, id interface{}
 }
 
 // UpDate mocks base method.
-func (m *MockArticleRepository) UpDate(ctx context.Context, existArticle int, article models.Article) error {
+func (m *MockArticleRepository) Update(ctx context.Context, existArticle int, article models.Article) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpDate", ctx, existArticle, article)
+	ret := m.ctrl.Call(m, "Update", ctx, existArticle, article)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
@@ -89,7 +89,7 @@ func (m *MockArticleRepository) UpDate(ctx context.Context, existArticle int, ar
 // UpDate indicates an expected call of UpDate.
 func (mr *MockArticleRepositoryMockRecorder) UpDate(ctx, existArticle, article interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpDate", reflect.TypeOf((*MockArticleRepository)(nil).UpDate), ctx, existArticle, article)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockArticleRepository)(nil).Update), ctx, existArticle, article)
 }
 
 // MockAuthorRepository is a mock of AuthorRepository interface.

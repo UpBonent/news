@@ -23,8 +23,7 @@ func (h *homePageStruct) homePage(c echo.Context) (err error) {
 	Welcome! There's a news portal.
 		You can use these options:
 			- /authors -- to view All author in our portal;
-			- /authors/create -- to create a new author;
-			- /authors/delete -- to delete exists author.
+			- /authors/create -- to create a new author.
 
 			- /articles -- to view All article from the latest to the earliest;
 			- /articles/headers -- to light view article with header only;
