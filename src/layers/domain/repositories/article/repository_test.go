@@ -158,7 +158,7 @@ func TestRepository_All(t *testing.T) {
 					AddRow(1, "There's first test header", "There's first test text", datePublishFirst, 1).
 					AddRow(2, "There's second test header", "There's second test text", datePublishSecond, 1)
 
-				mock.ExpectQuery("SELECT id, header, text, date_publish, id_authors FROM articles").
+				mock.ExpectQuery("SELECT id, header, text, date_publish, author_id FROM articles").
 					WillReturnRows(rows)
 			},
 			wantArticles: []models.Article{
@@ -209,76 +209,6 @@ func TestRepository_All(t *testing.T) {
 		panic(errors.Wrap(err, "can't close connection"))
 	}
 }
-
-//func TestRepository_Delete(t *testing.T) {
-//	sqlDB, mock, err := sqlmock.New()
-//	if err != nil {
-//		panic(err)
-//	}
-//
-//	ctx := context.Background()
-//	r := NewRepository(sqlx.NewDb(sqlDB, "postgres"))
-//
-//	type args struct {
-//		article models.Article
-//	}
-//	type mockBehavior func(args args)
-//
-//	tests := []struct {
-//		name         string
-//		args         args
-//		mockBehavior mockBehavior
-//		wantErr      bool
-//	}{
-//		{
-//			name: "Positive",
-//			args: args{
-//				article: models.Article{
-//					Id: 1,
-//				},
-//			},
-//			mockBehavior: func(args args) {
-//				mock.ExpectExec("DELETE FROM articles WHERE (.+)").
-//					WithArgs(args.article.Id).
-//					WillReturnResult(bung)
-//			},
-//			wantErr: false,
-//		},
-//		{
-//			name: "Not Found",
-//			args: args{
-//				article: models.Article{
-//					Id: 0,
-//				},
-//			},
-//			mockBehavior: func(args args) {
-//				mock.ExpectExec("DELETE FROM articles WHERE (.+)").
-//					WithArgs(args.article.Id).
-//					WillReturnError(sql.ErrNoRows)
-//			},
-//			wantErr: true,
-//		},
-//	}
-//	for _, tt := range tests {
-//		t.Run(tt.name, func(t *testing.T) {
-//			tt.mockBehavior(tt.args)
-//
-//			err = r.Delete(ctx, tt.args.article.Id)
-//			if tt.wantErr {
-//				assert.Error(t, err)
-//			} else {
-//				assert.NoError(t, err)
-//			}
-//		})
-//	}
-//
-//	mock.ExpectClose()
-//
-//	err = sqlDB.Close()
-//	if err != nil {
-//		panic(errors.Wrap(err, "can't close connection"))
-//	}
-//}
 
 // what about "not found" test case???
 func TestRepository_Update(t *testing.T) {

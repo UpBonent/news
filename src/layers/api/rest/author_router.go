@@ -16,8 +16,7 @@ import (
 
 const (
 	wayToCreateAuthor     = "/create"
-	wayToDeleteAuthor     = "/delete"
-	wayToArticlesByAuthor = "/"
+	wayToArticlesByAuthor = "/articles"
 )
 
 type handlerAuthor struct {
@@ -35,7 +34,7 @@ func (h *handlerAuthor) Register(e *echo.Echo) {
 	g := e.Group(h.way)
 	g.GET("", h.all)
 	g.POST(wayToCreateAuthor, h.create)
-	//g.DELETE(wayToDeleteAuthor, h.delete)
+	g.GET(wayToArticlesByAuthor, h.articlesByAuthor)
 }
 
 func (h *handlerAuthor) all(c echo.Context) error {
@@ -59,61 +58,38 @@ func (h *handlerAuthor) all(c echo.Context) error {
 }
 
 func (h *handlerAuthor) create(c echo.Context) (err error) {
-
 	var read []byte
-	author := models.Author{}
-
-	defer func() {
-		err := c.Request().Body.Close()
-		if err != nil {
-			return
-		}
-	}()
+	authorJSON := AuthorJSON{}
 
 	read, err = io.ReadAll(c.Request().Body)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	err = json.Unmarshal(read, &author)
+	err = json.Unmarshal(read, &authorJSON)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	author := models.Author{
+		Id:      authorJSON.Id,
+		Name:    authorJSON.Name,
+		Surname: authorJSON.Surname,
 	}
 
 	err = h.authorRepository.Insert(h.ctx, author)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-	return c.String(http.StatusCreated, "yeah, author has been created")
-}
 
-//func (h *handlerAuthor) delete(c echo.Context) (err error) {
-//	var read []byte
-//	author := models.Author{}
-//
-//	defer func() {
-//		err := c.Request().Body.Close()
-//		if err != nil {
-//			return
-//		}
-//	}()
-//
-//	read, err = io.ReadAll(c.Request().Body)
-//	if err != nil {
-//		return c.String(http.StatusBadRequest, err.Error())
-//	}
-//
-//	err = json.Unmarshal(read, &author)
-//	if err != nil {
-//		return c.String(http.StatusBadRequest, err.Error())
-//	}
-//
-//	err = h.repository.Delete(h.ctx, author.Id)
-//	if err != nil {
-//		return c.String(http.StatusBadRequest, err.Error())
-//	}
-//	return c.String(http.StatusResetContent, "yeah, author has been deleted")
-//}
+	err = c.Request().Body.Close()
+	if err != nil {
+		return
+	}
+
+	return c.String(http.StatusCreated, "yeah, author has been created")
+
+}
 
 func (h *handlerAuthor) articlesByAuthor(c echo.Context) (err error) {
 	var read []byte

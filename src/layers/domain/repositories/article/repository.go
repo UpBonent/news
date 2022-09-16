@@ -11,11 +11,11 @@ import (
 )
 
 const (
-	create = `INSERT INTO articles(header, text, date_create, date_publish, id_authors) VALUES ($1, $2, $3, $4, $5)`
-	all    = `SELECT id, header, text, date_publish, id_authors FROM articles`
+	create = `INSERT INTO articles(header, text, date_create, date_publish, author_id) VALUES ($1, $2, $3, $4, $5)`
+	all    = `SELECT id, header, text, date_publish, author_id FROM articles`
 	del    = `DELETE FROM articles WHERE id = $1`
 
-	byAuthorID = `SELECT header, text, authors.name, authors.surname FROM articles INNER JOIN authors ON articles.id = authors.id;`
+	byAuthorID = `SELECT header, text, date_publish FROM articles WHERE author_id = $1`
 
 	updHeader  = `UPDATE articles SET header = $1 WHERE id = $2`
 	updText    = `UPDATE articles SET text = $1 WHERE id = $2`
@@ -118,5 +118,29 @@ func (r *Repository) Update(ctx context.Context, existArticle int, article model
 }
 
 func (r *Repository) GetByAuthorID(ctx context.Context, id int) (articles []models.Article, err error) {
-	
+	var timestampPublish time.Time
+	art := models.Article{}
+
+	selector, err := r.db.QueryxContext(ctx, byAuthorID)
+	if err != nil {
+		return
+	}
+
+	for selector.Next() {
+		err = selector.Scan(&art.Id, &art.Header, &art.Text, &timestampPublish, &art.IdAuthor)
+		if err != nil {
+			return
+		}
+
+		nextArticle := models.Article{
+			Id:          art.Id,
+			Header:      art.Header,
+			Text:        art.Text,
+			DatePublish: timestampPublish.Format("02.01.06 15:04"),
+			IdAuthor:    art.IdAuthor,
+		}
+
+		articles = append(articles, nextArticle)
+	}
+	return
 }

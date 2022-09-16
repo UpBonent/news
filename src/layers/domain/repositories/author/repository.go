@@ -10,9 +10,8 @@ import (
 )
 
 const (
-	NewAuthor    = `INSERT INTO authors(name, surname) VALUES($1, $2) RETURNING id`
-	DeleteAuthor = `DELETE FROM authors WHERE id = $1 RETURNING id`
-	AllAuthors   = `SELECT id, name, surname FROM authors`
+	NewAuthor  = `INSERT INTO authors(name, surname) VALUES($1, $2) RETURNING id`
+	AllAuthors = `SELECT id, name, surname FROM authors`
 
 	GetAuthorByID   = `SELECT name, surname FROM authors WHERE id = $1`
 	GetAuthorByName = `SELECT id FROM authors WHERE name = $1 AND surname = $2`
@@ -30,6 +29,7 @@ func (r *Repository) Insert(ctx context.Context, author models.Author) (err erro
 	if author.Name == "" || author.Surname == "" {
 		return errors.New("error: author's fields is empty")
 	}
+
 	result := r.db.QueryRowxContext(ctx, NewAuthor, author.Name, author.Surname)
 	err = result.Err()
 	return
@@ -57,20 +57,6 @@ func (r *Repository) All(ctx context.Context) (authors []models.Author, err erro
 	}
 	return
 }
-
-//func (r *Repository) Delete(ctx context.Context, id int) (err error) {
-//	if id == 0 {
-//		return errors.New("author's id is empty")
-//	}
-//	result := r.db.QueryRowContext(ctx, DeleteAuthor, id)
-//	if err = result.Err(); err != nil {
-//		return
-//	}
-//	if result == nil {
-//		return errors.New("author does not exist")
-//	}
-//	return
-//}
 
 func (r *Repository) GetByID(ctx context.Context, id int) (author models.Author, err error) {
 	if id == 0 {

@@ -38,9 +38,11 @@ func TestRepository_Insert(t *testing.T) {
 				},
 			},
 			mockBehavior: func(args args) {
-				mock.ExpectExec("INSERT INTO authors").
+				rows := mock.NewRows([]string{"id"}).AddRow(1)
+
+				mock.ExpectQuery("INSERT INTO authors").
 					WithArgs(args.author.Name, args.author.Surname).
-					WillReturnResult(sqlmock.NewResult(1, 1))
+					WillReturnRows(rows)
 			},
 			wantErr: false,
 		},
