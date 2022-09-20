@@ -145,9 +145,9 @@ func (mr *MockAuthorRepositoryMockRecorder) Delete(ctx, id interface{}) *gomock.
 }
 
 // GetByID mocks base method.
-func (m *MockAuthorRepository) GetByID(ctx context.Context, id int) (models.Author, error) {
+func (m *MockAuthorRepository) GetAuthorByID(ctx context.Context, id int) (models.Author, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByID", ctx, id)
+	ret := m.ctrl.Call(m, "GetAuthorByID", ctx, id)
 	ret0, _ := ret[0].(models.Author)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -156,13 +156,13 @@ func (m *MockAuthorRepository) GetByID(ctx context.Context, id int) (models.Auth
 // GetByID indicates an expected call of GetByID.
 func (mr *MockAuthorRepositoryMockRecorder) GetByID(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockAuthorRepository)(nil).GetByID), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAuthorByID", reflect.TypeOf((*MockAuthorRepository)(nil).GetAuthorByID), ctx, id)
 }
 
 // GetByName mocks base method.
-func (m *MockAuthorRepository) GetByName(ctx context.Context, author models.Author) (int, error) {
+func (m *MockAuthorRepository) GetIDByName(ctx context.Context, author models.Author) (int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByName", ctx, author)
+	ret := m.ctrl.Call(m, "GetIDByName", ctx, author)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -171,7 +171,7 @@ func (m *MockAuthorRepository) GetByName(ctx context.Context, author models.Auth
 // GetByName indicates an expected call of GetByName.
 func (mr *MockAuthorRepositoryMockRecorder) GetByName(ctx, author interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByName", reflect.TypeOf((*MockAuthorRepository)(nil).GetByName), ctx, author)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIDByName", reflect.TypeOf((*MockAuthorRepository)(nil).GetIDByName), ctx, author)
 }
 
 // Insert mocks base method.

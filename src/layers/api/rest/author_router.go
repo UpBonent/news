@@ -6,8 +6,6 @@ package rest
 
 import (
 	"context"
-	"encoding/json"
-	"github.com/UpBonent/news/src/common/models"
 	"github.com/UpBonent/news/src/common/services"
 	"github.com/labstack/echo"
 	"io"
@@ -19,6 +17,10 @@ const (
 	wayToArticlesByAuthor = "/articles"
 )
 
+const (
+	paramDiscernibly = "view"
+)
+
 type handlerAuthor struct {
 	ctx               context.Context
 	way               string
@@ -27,17 +29,17 @@ type handlerAuthor struct {
 }
 
 func NewHandlerAuthor(ctx context.Context, s string, article services.ArticleRepository, author services.AuthorRepository) services.Handler {
-	return &handlerArticle{ctx, s, article, author}
+	return &handlerAuthor{ctx, s, article, author}
 }
 
 func (h *handlerAuthor) Register(e *echo.Echo) {
 	g := e.Group(h.way)
-	g.GET("", h.all)
+	g.GET("", h.allAuthor)
 	g.POST(wayToCreateAuthor, h.create)
 	g.GET(wayToArticlesByAuthor, h.articlesByAuthor)
 }
 
-func (h *handlerAuthor) all(c echo.Context) error {
+func (h *handlerAuthor) allAuthor(c echo.Context) (err error) {
 	authors, err := h.authorRepository.All(h.ctx)
 	if err != nil {
 		return err
@@ -46,9 +48,13 @@ func (h *handlerAuthor) all(c echo.Context) error {
 	var newLine = byte(10)
 
 	for _, author := range authors {
-		res, err := json.Marshal(author)
-		res = append(res, newLine)
-		_, err = c.Response().Write(res)
+		result, err := convertAuthorModelToJSON(author)
+		if err != nil {
+			return err
+		}
+
+		result = append(result, newLine)
+		_, err = c.Response().Write(result)
 		if err != nil {
 			return err
 		}
@@ -58,42 +64,33 @@ func (h *handlerAuthor) all(c echo.Context) error {
 }
 
 func (h *handlerAuthor) create(c echo.Context) (err error) {
-	var read []byte
-	authorJSON := AuthorJSON{}
+	defer func() {
+		err := c.Request().Body.Close()
+		if err != nil {
+			return
+		}
+	}()
 
-	read, err = io.ReadAll(c.Request().Body)
+	reader, err := io.ReadAll(c.Request().Body)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	err = json.Unmarshal(read, &authorJSON)
+	author, err := convertAuthorJSONtoModel(reader)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	author := models.Author{
-		Id:      authorJSON.Id,
-		Name:    authorJSON.Name,
-		Surname: authorJSON.Surname,
 	}
 
 	err = h.authorRepository.Insert(h.ctx, author)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	err = c.Request().Body.Close()
 	if err != nil {
 		return
 	}
 
 	return c.String(http.StatusCreated, "yeah, author has been created")
-
 }
 
 func (h *handlerAuthor) articlesByAuthor(c echo.Context) (err error) {
-	var read []byte
-	author := models.Author{}
+	var newLine = byte(10)
 
 	defer func() {
 		err := c.Request().Body.Close()
@@ -102,19 +99,33 @@ func (h *handlerAuthor) articlesByAuthor(c echo.Context) (err error) {
 		}
 	}()
 
-	read, err = io.ReadAll(c.Request().Body)
+	reader, err := io.ReadAll(c.Request().Body)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	err = json.Unmarshal(read, &author)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
+	author, err := convertAuthorJSONtoModel(reader)
+	if author.Id == 0 {
+		return c.String(http.StatusBadRequest, "author ID is empty or equal zero")
 	}
 
-	err = h.authorRepository.Insert(h.ctx, author)
+	articles, err := h.articleRepository.GetByAuthorID(h.ctx, author.Id)
 	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
+		return
 	}
+
+	for _, article := range articles {
+		result, err := convertArticleModelToJSON(article)
+		if err != nil {
+			return err
+		}
+
+		result = append(result, newLine)
+		_, err = c.Response().Write(result)
+		if err != nil {
+			return err
+		}
+	}
+
 	return c.String(http.StatusOK, "There are articles by this author")
 }

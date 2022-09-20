@@ -48,9 +48,9 @@ func Test_handlerAuthor_create(t *testing.T) {
 			tt.mockBehavior(repo, tt.resultAuthor)
 
 			handler := handlerAuthor{
-				ctx:        ctx,
-				way:        "/create",
-				repository: repo,
+				ctx:              ctx,
+				way:              "/create",
+				authorRepository: repo,
 			}
 			//Test Server
 			e := echo.New()

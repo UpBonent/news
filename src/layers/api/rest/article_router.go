@@ -32,7 +32,6 @@ func (h *handlerArticle) Register(e *echo.Echo) {
 	g.GET("", h.all)
 	g.POST(wayToCreate, h.create)
 	g.GET(wayToCreate, h.example)
-	//g.DELETE(wayToDelete, h.delete)
 	g.PUT(wayToUpDate, h.update)
 }
 
@@ -44,18 +43,18 @@ func (h *handlerArticle) all(c echo.Context) error {
 
 	var newLine = byte(10)
 
-	for _, art := range articles {
-		auth, err := h.authorRepository.GetByID(h.ctx, art.IdAuthor)
+	for _, article := range articles {
+		author, err := h.authorRepository.GetAuthorByID(h.ctx, article.AuthorID)
 		if err != nil {
 			return err
 		}
 
-		articleJSON, err := json.Marshal(art)
+		articleJSON, err := json.Marshal(article)
 		if err != nil {
 			return err
 		}
 
-		authorJSON, err := json.Marshal(auth)
+		authorJSON, err := json.Marshal(author)
 		if err != nil {
 			return err
 		}
@@ -99,7 +98,7 @@ func (h *handlerArticle) create(c echo.Context) (err error) {
 		return err
 	}
 
-	id, err := h.authorRepository.GetByName(h.ctx, author)
+	id, err := h.authorRepository.GetIDByName(h.ctx, author)
 
 	err = h.articleRepository.Insert(h.ctx, article, id)
 	if err != nil {
@@ -122,34 +121,6 @@ func (h *handlerArticle) example(c echo.Context) (err error) {
 `
 	return c.String(http.StatusOK, q)
 }
-
-//func (h *handlerArticle) delete(c echo.Context) (err error) {
-//	var read []byte
-//	article := models.Article{}
-//	defer func() {
-//		err = c.Request().Body.Close()
-//		if err != nil {
-//			return
-//		}
-//	}()
-//
-//	read, err = io.ReadAll(c.Request().Body)
-//	if err != nil {
-//		return err
-//	}
-//
-//	err = json.Unmarshal(read, &article)
-//	if err != nil {
-//		return err
-//	}
-//
-//	err = h.articleRepository.Delete(h.ctx, article.Id)
-//	if err != nil {
-//		return err
-//	}
-//
-//	return c.String(http.StatusResetContent, "Article was deleted")
-//}
 
 func (h *handlerArticle) update(c echo.Context) (err error) {
 	var read []byte

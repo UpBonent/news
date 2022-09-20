@@ -19,8 +19,7 @@ type ArticleRepository interface {
 type AuthorRepository interface {
 	Insert(ctx context.Context, author models.Author) error
 	All(ctx context.Context) (authors []models.Author, err error)
-	//Delete(ctx context.Context, id int) error
 
-	GetByID(ctx context.Context, id int) (author models.Author, err error)
-	GetByName(ctx context.Context, author models.Author) (id int, err error)
+	GetAuthorByID(ctx context.Context, id int) (author models.Author, err error)
+	GetIDByName(ctx context.Context, author models.Author) (id int, err error)
 }

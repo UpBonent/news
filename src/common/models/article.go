@@ -6,5 +6,5 @@ type Article struct {
 	Text        string `db:"text"`
 	DateCreate  string `db:"date_create"`
 	DatePublish string `db:"date_publish"`
-	IdAuthor    int    `db:"id_author"`
+	AuthorID    int    `db:"author_id"`
 }

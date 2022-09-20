@@ -238,7 +238,7 @@ func TestRepository_GetByID(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockBehavior(tt.args.id)
 
-			gotAuthor, err := r.GetByID(ctx, tt.args.id)
+			gotAuthor, err := r.GetAuthorByID(ctx, tt.args.id)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -295,7 +295,7 @@ func TestRepository_GetByName(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockBehavior(tt.args)
 
-			gotId, err := r.GetByName(ctx, tt.args.author)
+			gotId, err := r.GetIDByName(ctx, tt.args.author)
 			if tt.wantErr == true {
 				assert.Error(t, err)
 			} else {

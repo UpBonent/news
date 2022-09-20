@@ -13,7 +13,6 @@ import (
 const (
 	create = `INSERT INTO articles(header, text, date_create, date_publish, author_id) VALUES ($1, $2, $3, $4, $5)`
 	all    = `SELECT id, header, text, date_publish, author_id FROM articles`
-	del    = `DELETE FROM articles WHERE id = $1`
 
 	byAuthorID = `SELECT header, text, date_publish FROM articles WHERE author_id = $1`
 
@@ -52,7 +51,7 @@ func (r *Repository) All(ctx context.Context) (articles []models.Article, err er
 	}
 
 	for selector.Next() {
-		err = selector.Scan(&art.Id, &art.Header, &art.Text, &timestampPublish, &art.IdAuthor)
+		err = selector.Scan(&art.Id, &art.Header, &art.Text, &timestampPublish, &art.AuthorID)
 		if err != nil {
 			return
 		}
@@ -62,20 +61,13 @@ func (r *Repository) All(ctx context.Context) (articles []models.Article, err er
 			Header:      art.Header,
 			Text:        art.Text,
 			DatePublish: timestampPublish.Format("02.01.06 15:04"),
-			IdAuthor:    art.IdAuthor,
+			AuthorID:    art.AuthorID,
 		}
 
 		articles = append(articles, nextArticle)
 	}
 	return
 }
-
-//func (r *Repository) Delete(ctx context.Context, id int) (err error) {
-//
-//	_, err = r.db.ExecContext(ctx, del, id)
-//
-//	return
-//}
 
 func (r *Repository) Update(ctx context.Context, existArticle int, article models.Article) (err error) {
 	count := 1
@@ -119,28 +111,22 @@ func (r *Repository) Update(ctx context.Context, existArticle int, article model
 
 func (r *Repository) GetByAuthorID(ctx context.Context, id int) (articles []models.Article, err error) {
 	var timestampPublish time.Time
-	art := models.Article{}
+	article := models.Article{}
 
-	selector, err := r.db.QueryxContext(ctx, byAuthorID)
+	selector, err := r.db.QueryxContext(ctx, byAuthorID, id)
 	if err != nil {
 		return
 	}
 
 	for selector.Next() {
-		err = selector.Scan(&art.Id, &art.Header, &art.Text, &timestampPublish, &art.IdAuthor)
+		err = selector.Scan(&article.Id, &article.Header, &article.Text, &timestampPublish, &article.AuthorID)
 		if err != nil {
 			return
 		}
 
-		nextArticle := models.Article{
-			Id:          art.Id,
-			Header:      art.Header,
-			Text:        art.Text,
-			DatePublish: timestampPublish.Format("02.01.06 15:04"),
-			IdAuthor:    art.IdAuthor,
-		}
+		article.DatePublish = timestampPublish.Format("02.01.06 15:04")
 
-		articles = append(articles, nextArticle)
+		articles = append(articles, article)
 	}
 	return
 }

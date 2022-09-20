@@ -58,7 +58,7 @@ func (r *Repository) All(ctx context.Context) (authors []models.Author, err erro
 	return
 }
 
-func (r *Repository) GetByID(ctx context.Context, id int) (author models.Author, err error) {
+func (r *Repository) GetAuthorByID(ctx context.Context, id int) (author models.Author, err error) {
 	if id == 0 {
 		return author, errors.New("author's id is empty")
 	}
@@ -68,7 +68,7 @@ func (r *Repository) GetByID(ctx context.Context, id int) (author models.Author,
 	return
 }
 
-func (r *Repository) GetByName(ctx context.Context, author models.Author) (id int, err error) {
+func (r *Repository) GetIDByName(ctx context.Context, author models.Author) (id int, err error) {
 	if author.Name == "" || author.Surname == "" {
 		return id, errors.New("author's fields is empty")
 	}
