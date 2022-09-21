@@ -3,7 +3,6 @@ package rest
 import (
 	"context"
 	"encoding/json"
-	"github.com/UpBonent/news/src/common/models"
 	"github.com/UpBonent/news/src/common/services"
 	"github.com/labstack/echo"
 	"io"
@@ -49,14 +48,14 @@ func (h *handlerArticle) all(c echo.Context) error {
 			return err
 		}
 
-		articleJSON, err := json.Marshal(article)
+		articleJSON, err := convertArticleModelToJSON(article)
 		if err != nil {
-			return err
+			return c.String(http.StatusBadRequest, err.Error())
 		}
 
-		authorJSON, err := json.Marshal(author)
+		authorJSON, err := convertAuthorModelToJSON(author)
 		if err != nil {
-			return err
+			return c.String(http.StatusBadRequest, err.Error())
 		}
 
 		articleJSON = append(articleJSON, authorJSON...)
@@ -72,10 +71,6 @@ func (h *handlerArticle) all(c echo.Context) error {
 }
 
 func (h *handlerArticle) create(c echo.Context) (err error) {
-	var read []byte
-	article := models.Article{}
-	author := models.Author{}
-
 	defer func() {
 		err = c.Request().Body.Close()
 		if err != nil {
@@ -83,22 +78,25 @@ func (h *handlerArticle) create(c echo.Context) (err error) {
 		}
 	}()
 
-	read, err = io.ReadAll(c.Request().Body)
+	reader, err := io.ReadAll(c.Request().Body)
 	if err != nil {
-		return err
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	err = json.Unmarshal(read, &article)
+	article, err := convertArticleJSONtoModel(reader)
 	if err != nil {
-		return err
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	err = json.Unmarshal(read, &author)
+	author, err := convertAuthorJSONtoModel(reader)
 	if err != nil {
-		return err
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	id, err := h.authorRepository.GetIDByName(h.ctx, author)
+	if err != nil {
+		return err
+	}
 
 	err = h.articleRepository.Insert(h.ctx, article, id)
 	if err != nil {
@@ -108,7 +106,7 @@ func (h *handlerArticle) create(c echo.Context) (err error) {
 	return c.String(http.StatusCreated, "yeah, article has been created")
 }
 
-// DELETE example letter
+// DELETE example later
 func (h *handlerArticle) example(c echo.Context) (err error) {
 	q := `
 {
@@ -123,10 +121,9 @@ func (h *handlerArticle) example(c echo.Context) (err error) {
 }
 
 func (h *handlerArticle) update(c echo.Context) (err error) {
-	var read []byte
-	article := models.Article{}
-	existArticle := struct {
-		Id int `json:"id_exist"`
+	//another option: get all info in one structure (models.Article) without 'existsArticle'
+	existsArticle := struct {
+		IdExists int `json:"id_exist"`
 	}{}
 	defer func() {
 		err = c.Request().Body.Close()
@@ -135,25 +132,25 @@ func (h *handlerArticle) update(c echo.Context) (err error) {
 		}
 	}()
 
-	read, err = io.ReadAll(c.Request().Body)
+	reader, err := io.ReadAll(c.Request().Body)
 	if err != nil {
 		return err
 	}
 
-	err = json.Unmarshal(read, &article)
+	article, err := convertArticleJSONtoModel(reader)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	err = json.Unmarshal(reader, &existsArticle)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	err = h.articleRepository.Update(h.ctx, existsArticle.IdExists, article)
 	if err != nil {
 		return err
 	}
 
-	err = json.Unmarshal(read, &existArticle)
-	if err != nil {
-		return err
-	}
-
-	err = h.articleRepository.Update(h.ctx, existArticle.Id, article)
-	if err != nil {
-		return err
-	}
-
-	return c.String(http.StatusOK, "There are All headers")
+	return c.String(http.StatusOK, "Update succeeded")
 }
