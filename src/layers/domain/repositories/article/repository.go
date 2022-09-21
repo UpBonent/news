@@ -14,7 +14,7 @@ const (
 	create = `INSERT INTO articles(header, text, date_create, date_publish, author_id) VALUES ($1, $2, $3, $4, $5)`
 	all    = `SELECT id, header, text, date_publish, author_id FROM articles`
 
-	byAuthorID = `SELECT header, text, date_publish FROM articles WHERE author_id = $1`
+	byAuthorID = `SELECT id, header, text, date_publish FROM articles WHERE author_id = $1`
 
 	updHeader  = `UPDATE articles SET header = $1 WHERE id = $2`
 	updText    = `UPDATE articles SET text = $1 WHERE id = $2`
@@ -119,7 +119,7 @@ func (r *Repository) GetByAuthorID(ctx context.Context, id int) (articles []mode
 	}
 
 	for selector.Next() {
-		err = selector.Scan(&article.Id, &article.Header, &article.Text, &timestampPublish, &article.AuthorID)
+		err = selector.Scan(&article.Id, &article.Header, &article.Text, &timestampPublish)
 		if err != nil {
 			return
 		}
