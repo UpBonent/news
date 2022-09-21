@@ -3,10 +3,12 @@ package rest
 import (
 	"context"
 	"encoding/json"
-	"github.com/UpBonent/news/src/common/services"
-	"github.com/labstack/echo"
 	"io"
 	"net/http"
+
+	"github.com/labstack/echo"
+
+	"github.com/UpBonent/news/src/common/services"
 )
 
 const (

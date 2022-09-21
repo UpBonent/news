@@ -2,16 +2,16 @@ package main
 
 import (
 	"context"
-	"github.com/UpBonent/news/src/layers/api/rest"
-	"github.com/UpBonent/news/src/layers/domain/repositories/article"
-	"github.com/UpBonent/news/src/layers/domain/repositories/author"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
 	"log"
 	"os"
 
 	"github.com/ilyakaznacheev/cleanenv"
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 
+	"github.com/UpBonent/news/src/layers/api/rest"
+	"github.com/UpBonent/news/src/layers/domain/repositories/article"
+	"github.com/UpBonent/news/src/layers/domain/repositories/author"
 	"github.com/UpBonent/news/src/layers/infrastructure/config"
 	"github.com/UpBonent/news/src/layers/infrastructure/logging"
 	"github.com/UpBonent/news/src/layers/infrastructure/postgres"

@@ -6,10 +6,11 @@ package rest
 
 import (
 	"context"
-	"github.com/UpBonent/news/src/common/services"
-	"github.com/labstack/echo"
 	"io"
 	"net/http"
+
+	"github.com/UpBonent/news/src/common/services"
+	"github.com/labstack/echo"
 )
 
 const (
