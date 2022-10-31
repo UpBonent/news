@@ -33,12 +33,7 @@ func NewRepository(db *sqlx.DB) services.ArticleRepository {
 func (r *Repository) Insert(ctx context.Context, article models.Article, id int) (err error) {
 	dateCreate := time.Now().Round(time.Minute)
 
-	datePublish, err := time.Parse("02.01.06 15:04", article.DatePublish)
-	if err != nil {
-		return
-	}
-
-	_, err = r.db.ExecContext(ctx, create, article.Header, article.Text, dateCreate, datePublish, id)
+	_, err = r.db.ExecContext(ctx, create, article.Header, article.Text, dateCreate, article.DatePublish, id)
 	return
 }
 
@@ -61,7 +56,7 @@ func (r *Repository) All(ctx context.Context) (articles []models.Article, err er
 			Id:          art.Id,
 			Header:      art.Header,
 			Text:        art.Text,
-			DatePublish: timestampPublish.Format("02.01.06 15:04"),
+			DatePublish: art.DatePublish,
 			AuthorID:    art.AuthorID,
 		}
 
@@ -70,37 +65,28 @@ func (r *Repository) All(ctx context.Context) (articles []models.Article, err er
 	return
 }
 
-func (r *Repository) Update(ctx context.Context, existArticle int, article models.Article) (err error) {
+func (r *Repository) Update(ctx context.Context, existArticle int, newArticle models.Article) (err error) {
 	count := 1
 
-	if article.Header != "" {
-		_, err = r.db.ExecContext(ctx, updHeader, article.Header, existArticle)
+	if newArticle.Header != "" {
+		_, err = r.db.ExecContext(ctx, updHeader, newArticle.Header, existArticle)
 		if err != nil {
 			return
 		}
 		count--
 	}
 
-	if article.Text != "" {
-		_, err = r.db.ExecContext(ctx, updText, article.Text, existArticle)
+	if newArticle.Text != "" {
+		_, err = r.db.ExecContext(ctx, updText, newArticle.Text, existArticle)
 		if err != nil {
 			return
 		}
 		count--
 	}
 
-	if article.DatePublish != "" {
-		var parseDatePublish time.Time
-		parseDatePublish, err = time.Parse("02.01.06 15:04", article.DatePublish)
-		if err != nil {
-			return
-		}
-
-		_, err = r.db.ExecContext(ctx, updPublish, parseDatePublish, existArticle)
-		if err != nil {
-			return
-		}
-		count--
+	_, err = r.db.ExecContext(ctx, updPublish, newArticle.DatePublish, existArticle)
+	if err != nil {
+		return
 	}
 
 	if count > 0 {
@@ -124,8 +110,6 @@ func (r *Repository) GetByAuthorID(ctx context.Context, id int) (articles []mode
 		if err != nil {
 			return
 		}
-
-		article.DatePublish = timestampPublish.Format("02.01.06 15:04")
 
 		articles = append(articles, article)
 	}

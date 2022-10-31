@@ -13,7 +13,6 @@ import (
 
 const (
 	wayToCreate = "/create"
-	wayToDelete = "/delete" //root
 	wayToUpDate = "/update"
 )
 
@@ -32,44 +31,22 @@ func (h *handlerArticle) Register(e *echo.Echo) {
 	g := e.Group(h.way)
 	g.GET("", h.all)
 	g.POST(wayToCreate, h.create)
-	g.GET(wayToCreate, h.example)
 	g.PUT(wayToUpDate, h.update)
 }
 
-func (h *handlerArticle) all(c echo.Context) error {
+func (h *handlerArticle) all(c echo.Context) (err error) {
+	var allArticlesJSON []ArticleJSON
 	articles, err := h.articleRepository.All(h.ctx)
 	if err != nil {
 		return err
 	}
 
-	var newLine = byte(10)
-
 	for _, article := range articles {
-		author, err := h.authorRepository.GetAuthorByID(h.ctx, article.AuthorID)
-		if err != nil {
-			return err
-		}
-
-		articleJSON, err := convertArticleModelToJSON(article)
-		if err != nil {
-			return c.String(http.StatusBadRequest, err.Error())
-		}
-
-		authorJSON, err := convertAuthorModelToJSON(author)
-		if err != nil {
-			return c.String(http.StatusBadRequest, err.Error())
-		}
-
-		articleJSON = append(articleJSON, authorJSON...)
-		articleJSON = append(articleJSON, newLine)
-
-		_, err = c.Response().Write(articleJSON)
-		if err != nil {
-			return err
-		}
+		articleJSON := convertArticleModelToJSON(article)
+		allArticlesJSON = append(allArticlesJSON, articleJSON)
 	}
 
-	return c.String(http.StatusOK, "There are All articles")
+	return c.JSON(http.StatusOK, allArticlesJSON)
 }
 
 func (h *handlerArticle) create(c echo.Context) (err error) {
@@ -106,20 +83,6 @@ func (h *handlerArticle) create(c echo.Context) (err error) {
 	}
 
 	return c.String(http.StatusCreated, "yeah, article has been created")
-}
-
-// DELETE example later
-func (h *handlerArticle) example(c echo.Context) (err error) {
-	q := `
-{
-	"header": "",
-	"text": "",
-	"date_publish": "02.8.22 15:04",
-    "name": "Boris",
-    "surname": "Pasternak"
-}
-`
-	return c.String(http.StatusOK, q)
 }
 
 func (h *handlerArticle) update(c echo.Context) (err error) {

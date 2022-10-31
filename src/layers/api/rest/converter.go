@@ -3,6 +3,7 @@ package rest
 import (
 	"encoding/json"
 	"github.com/UpBonent/news/src/common/models"
+	"time"
 )
 
 type AuthorJSON struct {
@@ -22,6 +23,7 @@ type ArticleJSON struct {
 	AuthorID    int    `json:"author_id"`
 }
 
+// JSON-string to Model
 func convertAuthorJSONtoModel(reader []byte) (author models.Author, err error) {
 	authorJSON := AuthorJSON{}
 
@@ -39,17 +41,6 @@ func convertAuthorJSONtoModel(reader []byte) (author models.Author, err error) {
 	return
 }
 
-func convertAuthorModelToJSON(author models.Author) (writer []byte, err error) {
-	authorJSON := AuthorJSON{
-		Id:       author.Id,
-		Name:     author.Name,
-		Surname:  author.Surname,
-		Activity: author.Activity,
-	}
-
-	return json.Marshal(authorJSON)
-}
-
 func convertArticleJSONtoModel(reader []byte) (article models.Article, err error) {
 	articleJSON := ArticleJSON{}
 
@@ -58,25 +49,38 @@ func convertArticleJSONtoModel(reader []byte) (article models.Article, err error
 		return
 	}
 
+	datePublish, err := time.Parse("02.01.06 15:04", articleJSON.DatePublish)
+	if err != nil {
+		return
+	}
+
 	article = models.Article{
 		Id:          articleJSON.Id,
 		Header:      articleJSON.Header,
 		Text:        articleJSON.Text,
-		DatePublish: articleJSON.DatePublish,
+		DatePublish: datePublish,
 		AuthorID:    articleJSON.AuthorID,
 	}
 	return
 }
 
-func convertArticleModelToJSON(article models.Article) (writer []byte, err error) {
-	articleJSON := ArticleJSON{
+// Model to JSON-struct
+func convertAuthorModelToJSON(author models.Author) AuthorJSON {
+	return AuthorJSON{
+		Id:       author.Id,
+		Name:     author.Name,
+		Surname:  author.Surname,
+		Activity: author.Activity,
+	}
+}
+
+func convertArticleModelToJSON(article models.Article) ArticleJSON {
+	return ArticleJSON{
 		Id:          article.Id,
 		Header:      article.Header,
 		Text:        article.Text,
-		DateCreate:  article.DateCreate,
-		DatePublish: article.DatePublish,
+		DateCreate:  article.DateCreate.Format("02.01.06 15:04"),
+		DatePublish: article.DatePublish.Format("02.01.06 15:04"),
 		AuthorID:    article.AuthorID,
 	}
-
-	return json.Marshal(articleJSON)
 }

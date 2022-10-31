@@ -41,27 +41,18 @@ func (h *handlerAuthor) Register(e *echo.Echo) {
 }
 
 func (h *handlerAuthor) allAuthor(c echo.Context) (err error) {
+	var allAuthorsJSON []AuthorJSON
 	authors, err := h.authorRepository.All(h.ctx)
 	if err != nil {
 		return err
 	}
 
-	var newLine = byte(10)
-
 	for _, author := range authors {
-		result, err := convertAuthorModelToJSON(author)
-		if err != nil {
-			return err
-		}
-
-		result = append(result, newLine)
-		_, err = c.Response().Write(result)
-		if err != nil {
-			return err
-		}
+		authorJSON := convertAuthorModelToJSON(author)
+		allAuthorsJSON = append(allAuthorsJSON, authorJSON)
 	}
 
-	return c.String(http.StatusOK, "There are authors")
+	return c.JSON(http.StatusOK, allAuthorsJSON)
 }
 
 func (h *handlerAuthor) create(c echo.Context) (err error) {
@@ -91,8 +82,6 @@ func (h *handlerAuthor) create(c echo.Context) (err error) {
 }
 
 func (h *handlerAuthor) articlesByAuthor(c echo.Context) (err error) {
-	var newLine = byte(10)
-
 	defer func() {
 		err := c.Request().Body.Close()
 		if err != nil {
@@ -115,17 +104,10 @@ func (h *handlerAuthor) articlesByAuthor(c echo.Context) (err error) {
 		return
 	}
 
+	var allArticlesJSON []ArticleJSON
 	for _, article := range articles {
-		result, err := convertArticleModelToJSON(article)
-		if err != nil {
-			return err
-		}
-
-		result = append(result, newLine)
-		_, err = c.Response().Write(result)
-		if err != nil {
-			return err
-		}
+		articleJSON := convertArticleModelToJSON(article)
+		allArticlesJSON = append(allArticlesJSON, articleJSON)
 	}
 
 	return c.String(http.StatusOK, "There are articles by this author")

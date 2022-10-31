@@ -1,7 +1,7 @@
 ---
 
 is_debug: true
-logs_file: "logs/all.log"
+logs_file: "../logs/all.log"
 listen:
   bing_ip: 127.0.0.1
   port: ":8080"
