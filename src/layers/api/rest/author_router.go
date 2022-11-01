@@ -10,12 +10,9 @@ import (
 	"net/http"
 
 	"github.com/UpBonent/news/src/common/services"
-	"github.com/labstack/echo"
-)
 
-const (
-	wayToCreateAuthor     = "/create"
-	wayToArticlesByAuthor = "/articles"
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 const (
@@ -24,25 +21,31 @@ const (
 
 type handlerAuthor struct {
 	ctx               context.Context
-	way               string
 	articleRepository services.ArticleRepository
 	authorRepository  services.AuthorRepository
 }
 
-func NewHandlerAuthor(ctx context.Context, s string, article services.ArticleRepository, author services.AuthorRepository) services.Handler {
-	return &handlerAuthor{ctx, s, article, author}
+func NewHandlerAuthor(ctx context.Context, article services.ArticleRepository, author services.AuthorRepository) services.Handler {
+	return &handlerAuthor{ctx, article, author}
 }
 
 func (h *handlerAuthor) Register(e *echo.Echo) {
-	g := e.Group(h.way)
-	g.GET("", h.allAuthor)
-	g.POST(wayToCreateAuthor, h.create)
-	g.GET(wayToArticlesByAuthor, h.articlesByAuthor)
+	g := e.Group("/authors")
+	g.GET("", h.viewAllAuthor)
+
+	g.GET("/articles", h.viewAuthorsArticles)
+
+	g.GET("/create", h.viewCreateForm)
+	g.POST("/create/new", h.createNewAuthor)
+
+	a := g.Group("/auth")
+	a.Use(middleware.BasicAuth())
+	a.GET("", h.auth)
 }
 
-func (h *handlerAuthor) allAuthor(c echo.Context) (err error) {
+func (h *handlerAuthor) viewAllAuthor(c echo.Context) (err error) {
 	var allAuthorsJSON []AuthorJSON
-	authors, err := h.authorRepository.All(h.ctx)
+	authors, err := h.authorRepository.GetAll(h.ctx)
 	if err != nil {
 		return err
 	}
@@ -55,7 +58,11 @@ func (h *handlerAuthor) allAuthor(c echo.Context) (err error) {
 	return c.JSON(http.StatusOK, allAuthorsJSON)
 }
 
-func (h *handlerAuthor) create(c echo.Context) (err error) {
+func (h *handlerAuthor) viewCreateForm(c echo.Context) (err error) {
+	return c.File("../static/html/authors.html")
+}
+
+func (h *handlerAuthor) createNewAuthor(c echo.Context) (err error) {
 	defer func() {
 		err := c.Request().Body.Close()
 		if err != nil {
@@ -73,7 +80,7 @@ func (h *handlerAuthor) create(c echo.Context) (err error) {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	err = h.authorRepository.Insert(h.ctx, author)
+	_, err = h.authorRepository.Insert(h.ctx, author)
 	if err != nil {
 		return
 	}
@@ -81,7 +88,7 @@ func (h *handlerAuthor) create(c echo.Context) (err error) {
 	return c.String(http.StatusCreated, "yeah, author has been created")
 }
 
-func (h *handlerAuthor) articlesByAuthor(c echo.Context) (err error) {
+func (h *handlerAuthor) viewAuthorsArticles(c echo.Context) (err error) {
 	defer func() {
 		err := c.Request().Body.Close()
 		if err != nil {
@@ -112,3 +119,10 @@ func (h *handlerAuthor) articlesByAuthor(c echo.Context) (err error) {
 
 	return c.String(http.StatusOK, "There are articles by this author")
 }
+
+func (h *handlerAuthor) auth(c echo.Context) (err error) {
+
+	return err
+}
+
+type authenticate middleware.BasicAuthValidator

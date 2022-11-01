@@ -33,9 +33,9 @@ func (h *homePageStruct) hint(c echo.Context) (err error) {
 
 //	Welcome! There's a news portal.
 //		You can use these options:
-//			- /authors -- to view All author in our portal;
+//			- /authors -- to view GetAll author in our portal;
 //			- /authors/create -- to create a new author.
 //
-//			- /articles -- to view All article from the latest to the earliest;
+//			- /articles -- to view GetAll article from the latest to the earliest;
 //			- /articles/headers -- to light view article with header only;
 //			- /articles/create -- to create new article (use GET method to hint).

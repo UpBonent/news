@@ -18,26 +18,73 @@ h2{font-size: 42px;}
 h3{font-size: 28px;}
 h4{font-size: 18px; line-height: 1.4em;}
 
-p{
-    padding-bottom: 20px;
+.light{
+    padding-bottom: 10px;
     letter-spacing: 1px;
     color: #c3c3c3;
     font-weight: lighter;
 }
+/*================================
+HAD
+================================*/
+#head{
+    margin: 0;
+    padding: 0;
+    background: #363942;
+}
 
+#head .container p{
+    display: inline-list-item;
+    margin-bottom: 0;
+}
+#head .container #title{
+    padding-top: 20px;
+    padding-left: 40px;
+    line-height: 64px;
+    font-size: 76px;
+    font-style: italic;
+    color: #ffffff;
+}
+#more-functionality{
+    margin: 0;
+    text-align: right;
+    padding-right: 20px;
+}
+#head .light{
+    margin-top: 5px;
+    padding-left: 40px;
+}
+/*================================
+ARTICLES
+================================*/
+#articles{
+    text-align: left;
+    margin: 0 auto 8px 20%;
+}
+
+#articles h3{
+    margin-bottom: 10px;
+    color: #363942;
+    letter-spacing: 1px;
+}
+
+#articles p{
+    font-weight: lighter;
+    letter-spacing: 1px;
+    width: 255px;
+}
+
+#articles time{
+    padding-bottom: 10px;
+    color: #c3c3c3;
+    font-weight: lighter;
+}
 /*================================
 DEFAULT STYLE & FORMATTING
 ================================*/
 ul{padding: 0;}
 a{color: #f6bb6e}
-a:hover{color: #a96200; text-decoration: none;}
-
-/*================================
-UPPER SECTION
-================================*/
-#head{
-    background: #363942; padding: 20px
-}
+a:hover{color: #ffffff; text-decoration: none;}
 
 /*================================
 FOOTER SECTION
@@ -60,7 +107,7 @@ footer{
 /*================================
 FOLLOW BUTTON
 ================================*/
-.dribbble-follow-button .label, .dribbble-follow-button .count {
+.button {
     font: bold 11px/18px 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color: #333;
     border: 1px solid #ccc;
@@ -70,3 +117,35 @@ FOLLOW BUTTON
     border-radius: 3px;
 }
 
+/*================================
+NAVIGATE
+================================*/
+ul.h-menu {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 34px;
+    background-color: #363942;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#4f4f4f', endColorstr='#4f4f4f', GradientType=0);
+}
+
+ul.h-menu li {
+    float: right;
+    list-style: none;
+    border-right: 1px solid #4f4f4f;
+    position: relative;
+    width: auto;
+}
+
+ul.h-menu li a {
+    color: white;
+    display: block;
+    font-size: 15px;
+    padding: 8px 20px 10px;
+    text-decoration: none;
+ /*   border-right: 2px solid #2b2b2b; */
+}
+
+ul.h-menu li a:hover {
+    background-color: #282828;
+}

@@ -3,7 +3,9 @@ create table authors
     id       smallserial UNIQUE,
     name     varchar(20) NOT NULL,
     surname  varchar(30) NOT NULL,
-    activity bool DEFAULT true
+    activity bool DEFAULT true,
+    username varchar(20) NOT NULL,
+    password varchar(30) NOT NULL
 );
 
 create table articles

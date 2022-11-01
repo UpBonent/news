@@ -12,17 +12,17 @@ function showArticles(jsonObj) {
 
     for (let i = 0; i < jsonObj.length; i++) {
         let listItem = document.createElement('li')
-        let h4 = document.createElement('h4');
+        let h3 = document.createElement('h3');
         let p1 = document.createElement('p');
-        let p2 = document.createElement('p');
+        let time = document.createElement('time');
 
-        h4.textContent = jsonObj[i].header;
+        h3.textContent = jsonObj[i].header;
         p1.textContent = jsonObj[i].text;
-        p2.textContent = 'Date of create: ' + jsonObj[i].date_create;
+        time.textContent = 'Date of create: ' + jsonObj[i].date_create;
 
-        listItem.appendChild(h4);
+        listItem.appendChild(h3);
         listItem.appendChild(p1);
-        listItem.appendChild(p2);
+        listItem.appendChild(time);
 
         list.appendChild(listItem)
     }

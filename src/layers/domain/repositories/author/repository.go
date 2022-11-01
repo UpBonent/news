@@ -2,8 +2,10 @@ package author
 
 import (
 	"context"
+
 	"github.com/UpBonent/news/src/common/models"
 	"github.com/UpBonent/news/src/common/services"
+
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/pkg/errors"
@@ -15,6 +17,8 @@ const (
 
 	GetAuthorByID   = `SELECT name, surname FROM authors WHERE id = $1`
 	GetAuthorByName = `SELECT id FROM authors WHERE name = $1 AND surname = $2`
+
+	CheckByUsernameNPassword = `SELECT id FROM authors WHERE username = $1 AND password = $2`
 )
 
 type Repository struct {
@@ -25,17 +29,17 @@ func NewRepository(db *sqlx.DB) services.AuthorRepository {
 	return &Repository{db}
 }
 
-func (r *Repository) Insert(ctx context.Context, author models.Author) (err error) {
+func (r *Repository) Insert(ctx context.Context, author models.Author) (id int, err error) {
 	if author.Name == "" || author.Surname == "" {
-		return errors.New("error: author's fields is empty")
+		return 0, errors.New("error: author's fields is empty")
 	}
 
 	result := r.db.QueryRowxContext(ctx, NewAuthor, author.Name, author.Surname)
-	err = result.Err()
+	err = result.Scan(&id)
 	return
 }
 
-func (r *Repository) All(ctx context.Context) (authors []models.Author, err error) {
+func (r *Repository) GetAll(ctx context.Context) (authors []models.Author, err error) {
 	selector, err := r.db.QueryxContext(ctx, AllAuthors)
 	if err != nil {
 		return
@@ -76,4 +80,19 @@ func (r *Repository) GetIDByName(ctx context.Context, author models.Author) (id 
 	result := r.db.QueryRowContext(ctx, GetAuthorByName, author.Name, author.Surname)
 	err = result.Scan(&id)
 	return
+}
+
+func (r *Repository) CheckAuthorExists(ctx context.Context, username, password string) (bool, error) {
+	var id uint
+	result := r.db.QueryRowxContext(ctx, CheckByUsernameNPassword, username, password)
+	err := result.Scan(&id)
+	if err != nil {
+		return false, err
+	}
+
+	if id != 0 {
+		return true, nil
+	} else {
+		return false, nil
+	}
 }

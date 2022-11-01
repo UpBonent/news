@@ -18,22 +18,28 @@
 
 <!--BODY -->
 <body>
-<header>
-    <h1 id="head">What? News</h1>
-    <p>Это новостной портал обо всём, что только надо знать</p>
-</header>
+<div id="head">
+    <div class="container">
+        <p id="title">What? News</p>
+        <p id="more-functionality">
+        <ul class="h-menu">
+            <li><a href="/authors/create">Стать автором</a>
+            <li><a href="/authors/auth">Я автор</a>
+        </ul>
+        </p>
+    </div>
+    <p class="light">Это новостной портал обо всём, что только надо знать</p>
+</div>
+
 <main>
-    <section>
-     
+    <section id="articles">
+<!-- Here's articles -->
     </section>
-
     <script src="js/main_page_articles.js"></script>
-
 </main>
 <footer>
-
     <div>
-        <p id="sing">Pet-project by Andrei Beltsiukou</p>
+        <p class="light">Pet-project by Andrei Beltsiukou</p>
         <ul class="footer-links">
             <li><a href="https://www.linkedin.com/in/andrei-beltsiukou-ba11691a5/">Linkedin</a></li>
             <li><a href="https://github.com/UpBonent">GitHub</a></li>

@@ -38,7 +38,7 @@ func (m *MockArticleRepository) EXPECT() *MockArticleRepositoryMockRecorder {
 // All mocks base method.
 func (m *MockArticleRepository) All(ctx context.Context) ([]models.Article, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "All", ctx)
+	ret := m.ctrl.Call(m, "GetAll", ctx)
 	ret0, _ := ret[0].([]models.Article)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -47,7 +47,7 @@ func (m *MockArticleRepository) All(ctx context.Context) ([]models.Article, erro
 // All indicates an expected call of All.
 func (mr *MockArticleRepositoryMockRecorder) All(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "All", reflect.TypeOf((*MockArticleRepository)(nil).All), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockArticleRepository)(nil).All), ctx)
 }
 
 // Delete mocks base method.
@@ -118,7 +118,7 @@ func (m *MockAuthorRepository) EXPECT() *MockAuthorRepositoryMockRecorder {
 // All mocks base method.
 func (m *MockAuthorRepository) All(ctx context.Context) ([]models.Author, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "All", ctx)
+	ret := m.ctrl.Call(m, "GetAll", ctx)
 	ret0, _ := ret[0].([]models.Author)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -127,7 +127,7 @@ func (m *MockAuthorRepository) All(ctx context.Context) ([]models.Author, error)
 // All indicates an expected call of All.
 func (mr *MockAuthorRepositoryMockRecorder) All(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "All", reflect.TypeOf((*MockAuthorRepository)(nil).All), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockAuthorRepository)(nil).All), ctx)
 }
 
 // Delete mocks base method.

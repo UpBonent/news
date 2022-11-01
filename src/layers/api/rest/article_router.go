@@ -11,27 +11,21 @@ import (
 	"github.com/UpBonent/news/src/common/services"
 )
 
-const (
-	wayToCreate = "/create"
-	wayToUpDate = "/update"
-)
-
 type handlerArticle struct {
 	ctx               context.Context
-	way               string
 	articleRepository services.ArticleRepository
 	authorRepository  services.AuthorRepository
 }
 
-func NewHandlerArticle(ctx context.Context, s string, article services.ArticleRepository, author services.AuthorRepository) services.Handler {
-	return &handlerArticle{ctx, s, article, author}
+func NewHandlerArticle(ctx context.Context, article services.ArticleRepository, author services.AuthorRepository) services.Handler {
+	return &handlerArticle{ctx, article, author}
 }
 
 func (h *handlerArticle) Register(e *echo.Echo) {
-	g := e.Group(h.way)
+	g := e.Group("/articles")
 	g.GET("", h.all)
-	g.POST(wayToCreate, h.create)
-	g.PUT(wayToUpDate, h.update)
+	g.POST("/create", h.create)
+	g.PUT("/update", h.update)
 }
 
 func (h *handlerArticle) all(c echo.Context) (err error) {

@@ -120,7 +120,7 @@ func TestRepository_All(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockBehavior()
 
-			gotAuthors, err := r.All(ctx)
+			gotAuthors, err := r.GetAll(ctx)
 			if assert.NoError(t, err) {
 				assert.Equal(t, tt.wantAuthors, gotAuthors)
 			}
