@@ -1,7 +1,10 @@
 ---
 
-is_debug: true
-logs_file: "../logs/all.log"
+log:
+  active_levels: #There are three levels you can activate "info", "error", "fatal" - or use "all" for activate all of them
+    -"all"
+  output: "stdout" #There are two ways: "stdout" or "file"
+  path_to_file:
 listen:
   bing_ip: 127.0.0.1
   port: ":8080"

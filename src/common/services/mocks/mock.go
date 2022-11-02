@@ -67,7 +67,7 @@ func (mr *MockArticleRepositoryMockRecorder) Delete(ctx, id interface{}) *gomock
 // Insert mocks base method.
 func (m *MockArticleRepository) Insert(ctx context.Context, article models.Article, id int) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Insert", ctx, article, id)
+	ret := m.ctrl.Call(m, "CreateNew", ctx, article, id)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
@@ -75,7 +75,7 @@ func (m *MockArticleRepository) Insert(ctx context.Context, article models.Artic
 // Insert indicates an expected call of Insert.
 func (mr *MockArticleRepositoryMockRecorder) Insert(ctx, article, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert", reflect.TypeOf((*MockArticleRepository)(nil).Insert), ctx, article, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNew", reflect.TypeOf((*MockArticleRepository)(nil).Insert), ctx, article, id)
 }
 
 // UpDate mocks base method.
@@ -147,7 +147,7 @@ func (mr *MockAuthorRepositoryMockRecorder) Delete(ctx, id interface{}) *gomock.
 // GetByID mocks base method.
 func (m *MockAuthorRepository) GetAuthorByID(ctx context.Context, id int) (models.Author, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAuthorByID", ctx, id)
+	ret := m.ctrl.Call(m, "GetByID", ctx, id)
 	ret0, _ := ret[0].(models.Author)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -156,7 +156,7 @@ func (m *MockAuthorRepository) GetAuthorByID(ctx context.Context, id int) (model
 // GetByID indicates an expected call of GetByID.
 func (mr *MockAuthorRepositoryMockRecorder) GetByID(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAuthorByID", reflect.TypeOf((*MockAuthorRepository)(nil).GetAuthorByID), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockAuthorRepository)(nil).GetAuthorByID), ctx, id)
 }
 
 // GetByName mocks base method.
@@ -177,7 +177,7 @@ func (mr *MockAuthorRepositoryMockRecorder) GetByName(ctx, author interface{}) *
 // Insert mocks base method.
 func (m *MockAuthorRepository) Insert(ctx context.Context, author models.Author) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Insert", ctx, author)
+	ret := m.ctrl.Call(m, "CreateNew", ctx, author)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
@@ -185,5 +185,5 @@ func (m *MockAuthorRepository) Insert(ctx context.Context, author models.Author)
 // Insert indicates an expected call of Insert.
 func (mr *MockAuthorRepositoryMockRecorder) Insert(ctx, author interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert", reflect.TypeOf((*MockAuthorRepository)(nil).Insert), ctx, author)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNew", reflect.TypeOf((*MockAuthorRepository)(nil).Insert), ctx, author)
 }

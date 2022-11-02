@@ -1,9 +1,12 @@
 package config
 
 type Config struct {
-	IsDebug  *bool  `yaml:"is_debug" env-required:"true"`
-	LogsFile string `yaml:"logs_file"`
-	Listen   struct {
+	Log struct {
+		ActiveLevels []string `yaml:"active_levels"`
+		Output       string   `yaml:"output"`
+		PathToFile   string   `yaml:"path_to_file"`
+	} `yaml:"log"`
+	Listen struct {
 		BindIP string `yaml:"bind_ip" env-default:"127.0.0.1"`
 		Port   string `yaml:"port" env-default:"8080"`
 	} `yaml:"listen"`
