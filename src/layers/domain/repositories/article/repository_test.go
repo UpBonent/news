@@ -114,7 +114,7 @@ func TestRepository_Insert(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockBehavior(tt.args)
 
-			err = r.Insert(ctx, tt.args.art, tt.args.id)
+			err = r.CreateNew(ctx, tt.args.art, tt.args.id)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -194,7 +194,7 @@ func TestRepository_All(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockBehavior()
 
-			gotArticles, err := r.All(ctx)
+			gotArticles, err := r.GetAll(ctx)
 			if assert.NoError(t, err) {
 				assert.Equal(t, tt.wantArticles, gotArticles)
 			}

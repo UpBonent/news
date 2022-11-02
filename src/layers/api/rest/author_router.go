@@ -15,18 +15,13 @@ import (
 	"github.com/labstack/echo/middleware"
 )
 
-const (
-	paramDiscernibly = "view"
-)
-
 type handlerAuthor struct {
-	ctx               context.Context
-	articleRepository services.ArticleRepository
-	authorRepository  services.AuthorRepository
+	ctx         context.Context
+	application services.Application
 }
 
-func NewHandlerAuthor(ctx context.Context, article services.ArticleRepository, author services.AuthorRepository) services.Handler {
-	return &handlerAuthor{ctx, article, author}
+func NewHandlersAuthor(ctx context.Context, app services.Application) services.Handler {
+	return &handlerAuthor{ctx, app}
 }
 
 func (h *handlerAuthor) Register(e *echo.Echo) {
@@ -45,7 +40,7 @@ func (h *handlerAuthor) Register(e *echo.Echo) {
 
 func (h *handlerAuthor) viewAllAuthor(c echo.Context) (err error) {
 	var allAuthorsJSON []AuthorJSON
-	authors, err := h.authorRepository.GetAll(h.ctx)
+	authors, err := h.application.GetAllAuthors(h.ctx)
 	if err != nil {
 		return err
 	}
@@ -80,7 +75,7 @@ func (h *handlerAuthor) createNewAuthor(c echo.Context) (err error) {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	_, err = h.authorRepository.Insert(h.ctx, author)
+	_, err = h.application.CreateNewAuthor(h.ctx, author)
 	if err != nil {
 		return
 	}
@@ -106,11 +101,13 @@ func (h *handlerAuthor) viewAuthorsArticles(c echo.Context) (err error) {
 		return c.String(http.StatusBadRequest, "author ID is empty or equal zero")
 	}
 
-	articles, err := h.articleRepository.GetByAuthorID(h.ctx, author.Id)
+	articles, err := h.application.GetArticlesByAuthorID(h.ctx, author.Id)
 	if err != nil {
 		return
 	}
-
+	//
+	//
+	//mb it makes sense to restructure code below
 	var allArticlesJSON []ArticleJSON
 	for _, article := range articles {
 		articleJSON := convertArticleModelToJSON(article)
@@ -124,5 +121,3 @@ func (h *handlerAuthor) auth(c echo.Context) (err error) {
 
 	return err
 }
-
-type authenticate middleware.BasicAuthValidator

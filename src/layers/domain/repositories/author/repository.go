@@ -29,7 +29,7 @@ func NewRepository(db *sqlx.DB) services.AuthorRepository {
 	return &Repository{db}
 }
 
-func (r *Repository) Insert(ctx context.Context, author models.Author) (id int, err error) {
+func (r *Repository) CreateNew(ctx context.Context, author models.Author) (id int, err error) {
 	if author.Name == "" || author.Surname == "" {
 		return 0, errors.New("error: author's fields is empty")
 	}
@@ -62,7 +62,7 @@ func (r *Repository) GetAll(ctx context.Context) (authors []models.Author, err e
 	return
 }
 
-func (r *Repository) GetAuthorByID(ctx context.Context, id int) (author models.Author, err error) {
+func (r *Repository) GetByID(ctx context.Context, id int) (author models.Author, err error) {
 	if id == 0 {
 		return author, errors.New("author's id is empty")
 	}

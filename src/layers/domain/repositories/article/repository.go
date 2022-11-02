@@ -6,6 +6,7 @@ import (
 
 	"github.com/UpBonent/news/src/common/models"
 	"github.com/UpBonent/news/src/common/services"
+
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/pkg/errors"
@@ -30,14 +31,14 @@ func NewRepository(db *sqlx.DB) services.ArticleRepository {
 	return &Repository{db}
 }
 
-func (r *Repository) Insert(ctx context.Context, article models.Article, id int) (err error) {
+func (r *Repository) CreateNew(ctx context.Context, article models.Article, id int) (err error) {
 	dateCreate := time.Now().Round(time.Minute)
 
 	_, err = r.db.ExecContext(ctx, create, article.Header, article.Text, dateCreate, article.DatePublish, id)
 	return
 }
 
-func (r *Repository) All(ctx context.Context) (articles []models.Article, err error) {
+func (r *Repository) GetAll(ctx context.Context) (articles []models.Article, err error) {
 	var timestampPublish time.Time
 	art := models.Article{}
 

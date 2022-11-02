@@ -63,7 +63,7 @@ func TestRepository_Insert(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockBehavior(tt.args)
 
-			err = r.Insert(ctx, tt.args.author)
+			err = r.CreateNew(ctx, tt.args.author)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -238,7 +238,7 @@ func TestRepository_GetByID(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockBehavior(tt.args.id)
 
-			gotAuthor, err := r.GetAuthorByID(ctx, tt.args.id)
+			gotAuthor, err := r.GetByID(ctx, tt.args.id)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {

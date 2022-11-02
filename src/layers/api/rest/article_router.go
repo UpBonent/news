@@ -17,7 +17,7 @@ type handlerArticle struct {
 	authorRepository  services.AuthorRepository
 }
 
-func NewHandlerArticle(ctx context.Context, article services.ArticleRepository, author services.AuthorRepository) services.Handler {
+func NewHandlersArticle(ctx context.Context, article services.ArticleRepository, author services.AuthorRepository) services.Handler {
 	return &handlerArticle{ctx, article, author}
 }
 
@@ -30,7 +30,7 @@ func (h *handlerArticle) Register(e *echo.Echo) {
 
 func (h *handlerArticle) all(c echo.Context) (err error) {
 	var allArticlesJSON []ArticleJSON
-	articles, err := h.articleRepository.All(h.ctx)
+	articles, err := h.articleRepository.GetAll(h.ctx)
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func (h *handlerArticle) create(c echo.Context) (err error) {
 		return err
 	}
 
-	err = h.articleRepository.Insert(h.ctx, article, id)
+	err = h.articleRepository.CreateNew(h.ctx, article, id)
 	if err != nil {
 		return err
 	}
