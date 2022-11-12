@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"github.com/UpBonent/news/src/common/models"
+	"github.com/labstack/echo"
 )
 
 type Application interface {
@@ -16,5 +17,5 @@ type Application interface {
 	GetAuthorByID(ctx context.Context, id int) (author models.Author, err error)
 	GetIDByAuthor(ctx context.Context, author models.Author) (id int, err error)
 
-	CheckUserExist(ctx context.Context, userName string, password string) (bool, error)
+	CheckUserExist(username, password string, c echo.Context) (ok bool, err error)
 }

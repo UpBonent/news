@@ -2,7 +2,7 @@
 
 log:
   active_levels: #There are three levels you can activate "info", "error", "fatal" - or use "all" for activate all of them
-    -"all"
+    - "all"
   output: "stdout" #There are two ways: "stdout" or "file"
   path_to_file:
 listen:

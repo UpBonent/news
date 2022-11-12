@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	NewAuthor  = `INSERT INTO authors(name, surname) VALUES($1, $2) RETURNING id`
+	NewAuthor  = `INSERT INTO authors(name, surname, username, password, salt) VALUES($1, $2, $3, $4, $5) RETURNING id`
 	AllAuthors = `SELECT id, name, surname FROM authors`
 
 	GetAuthorByID   = `SELECT name, surname FROM authors WHERE id = $1`
@@ -29,12 +29,15 @@ func NewRepository(db *sqlx.DB) services.AuthorRepository {
 	return &Repository{db}
 }
 
-func (r *Repository) CreateNew(ctx context.Context, author models.Author) (id int, err error) {
-	if author.Name == "" || author.Surname == "" {
+func (r *Repository) CreateNew(ctx context.Context, a models.Author, username, pwd, salt string) (id int, err error) {
+	if a.Name == "" || a.Surname == "" {
 		return 0, errors.New("error: author's fields is empty")
 	}
 
-	result := r.db.QueryRowxContext(ctx, NewAuthor, author.Name, author.Surname)
+	result := r.db.QueryRowxContext(ctx, NewAuthor, a.Name, a.Surname, username, pwd, salt)
+	if result.Err() != nil {
+		return 0, result.Err()
+	}
 	err = result.Scan(&id)
 	return
 }
@@ -82,17 +85,11 @@ func (r *Repository) GetIDByName(ctx context.Context, author models.Author) (id 
 	return
 }
 
-func (r *Repository) CheckAuthorExists(ctx context.Context, username, password string) (bool, error) {
-	var id uint
-	result := r.db.QueryRowxContext(ctx, CheckByUsernameNPassword, username, password)
-	err := result.Scan(&id)
+func (r *Repository) CheckAuthorExists(username, password string) (id int, err error) {
+	result := r.db.QueryRowx(CheckByUsernameNPassword, username, password)
+	err = result.Scan(&id)
 	if err != nil {
-		return false, err
+		return 0, err
 	}
-
-	if id != 0 {
-		return true, nil
-	} else {
-		return false, nil
-	}
+	return
 }

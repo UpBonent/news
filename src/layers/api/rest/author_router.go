@@ -6,13 +6,13 @@ package rest
 
 import (
 	"context"
+	"github.com/labstack/echo/middleware"
 	"io"
 	"net/http"
 
 	"github.com/UpBonent/news/src/common/services"
 
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
 )
 
 type handlerAuthor struct {
@@ -33,8 +33,9 @@ func (h *handlerAuthor) Register(e *echo.Echo) {
 	g.GET("/create", h.viewCreateForm)
 	g.POST("/create/new", h.createNewAuthor)
 
-	a := g.Group("/auth")
-	a.Use(middleware.BasicAuth())
+	a := g.Group("/profile")
+	a.Use(middleware.BasicAuth(h.application.CheckUserExist))
+
 	a.GET("", h.auth)
 }
 
@@ -85,7 +86,7 @@ func (h *handlerAuthor) createNewAuthor(c echo.Context) (err error) {
 
 func (h *handlerAuthor) viewAuthorsArticles(c echo.Context) (err error) {
 	defer func() {
-		err := c.Request().Body.Close()
+		err = c.Request().Body.Close()
 		if err != nil {
 			return
 		}
@@ -105,19 +106,17 @@ func (h *handlerAuthor) viewAuthorsArticles(c echo.Context) (err error) {
 	if err != nil {
 		return
 	}
-	//
-	//
-	//mb it makes sense to restructure code below
+
 	var allArticlesJSON []ArticleJSON
 	for _, article := range articles {
 		articleJSON := convertArticleModelToJSON(article)
 		allArticlesJSON = append(allArticlesJSON, articleJSON)
 	}
 
-	return c.String(http.StatusOK, "There are articles by this author")
+	return c.JSON(http.StatusOK, allArticlesJSON)
 }
 
 func (h *handlerAuthor) auth(c echo.Context) (err error) {
 
-	return err
+	return c.String(http.StatusOK, "Welcome")
 }

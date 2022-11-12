@@ -5,7 +5,8 @@ create table authors
     surname  varchar(30) NOT NULL,
     activity bool DEFAULT true,
     username varchar(20) NOT NULL,
-    password varchar(30) NOT NULL
+    password char(64) NOT NULL,
+    salt     char(64) NOT NULL
 );
 
 create table articles
@@ -19,9 +20,5 @@ create table articles
     author_id       int references authors(id)
 );
 
-drop table authors;
 drop table articles;
-
--- !!! Indexes !!!
-
-INSERT INTO authors(name, surname) VALUES ('Don', 'Don')
+drop table authors;

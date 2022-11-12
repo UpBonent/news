@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+
 	"github.com/UpBonent/news/src/layers/application"
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/labstack/echo"
@@ -24,24 +25,23 @@ func main() {
 	}
 
 	logOutput := logging.SetLoggerOutput(cfg.Log.Output, cfg.Log.PathToFile)
-	l := logging.NewLogger(cfg.Log.ActiveLevels, logOutput)
+	logger := logging.NewLogger(cfg.Log.ActiveLevels, logOutput)
 
-	db, err := postgres.NewClient(ctx, cfg.Storage)
+	dataBaseConnection, err := postgres.NewClient(ctx, cfg.Storage)
 	if err != nil {
 		panic(err)
 	}
 
-	app := application.SetApplicationLayer(db, l)
+	app := application.SetApplicationLayer(dataBaseConnection, logger)
 
 	e := echo.New()
 	e.Use(middleware.Static("../static"))
-
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{Format: `[${time_rfc3339}] ${status} ${method} ${host}${path} ${latency_human}. Error: [${error}]` + "\n"}))
 	e.Use(middleware.Recover())
 
 	rest.NewHandlersAuthor(ctx, app).Register(e)
-	rest.NewHandlersArticle(ctx, app.Article, app.Author).Register(e)
+	rest.NewHandlersArticle(ctx, app).Register(e)
 
-	l.INFO("Server has started")
+	logger.INFO("Server has started")
 	e.Logger.Fatal(e.Start(cfg.Listen.Port))
 }

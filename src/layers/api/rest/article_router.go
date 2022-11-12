@@ -12,13 +12,12 @@ import (
 )
 
 type handlerArticle struct {
-	ctx               context.Context
-	articleRepository services.ArticleRepository
-	authorRepository  services.AuthorRepository
+	ctx         context.Context
+	application services.Application
 }
 
-func NewHandlersArticle(ctx context.Context, article services.ArticleRepository, author services.AuthorRepository) services.Handler {
-	return &handlerArticle{ctx, article, author}
+func NewHandlersArticle(ctx context.Context, app services.Application) services.Handler {
+	return &handlerArticle{ctx, app}
 }
 
 func (h *handlerArticle) Register(e *echo.Echo) {
@@ -30,7 +29,7 @@ func (h *handlerArticle) Register(e *echo.Echo) {
 
 func (h *handlerArticle) all(c echo.Context) (err error) {
 	var allArticlesJSON []ArticleJSON
-	articles, err := h.articleRepository.GetAll(h.ctx)
+	articles, err := h.application.GetAllArticles(h.ctx)
 	if err != nil {
 		return err
 	}
@@ -66,12 +65,12 @@ func (h *handlerArticle) create(c echo.Context) (err error) {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	id, err := h.authorRepository.GetIDByName(h.ctx, author)
+	id, err := h.application.GetIDByAuthor(h.ctx, author)
 	if err != nil {
 		return err
 	}
 
-	err = h.articleRepository.CreateNew(h.ctx, article, id)
+	err = h.application.CreateNewArticle(h.ctx, article, id)
 	if err != nil {
 		return err
 	}
@@ -106,7 +105,7 @@ func (h *handlerArticle) update(c echo.Context) (err error) {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	err = h.articleRepository.Update(h.ctx, existsArticle.IdExists, article)
+	err = h.application.UpdateArticle(h.ctx, existsArticle.IdExists, article)
 	if err != nil {
 		return err
 	}
