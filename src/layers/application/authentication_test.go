@@ -7,7 +7,7 @@ import (
 )
 
 func Test_getSalt(t *testing.T) {
-	v, _ := getSalt()
+	v, _ := generateSalt()
 	fmt.Println(hex.EncodeToString(v))
 	fmt.Println(v)
 }

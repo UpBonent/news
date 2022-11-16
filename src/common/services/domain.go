@@ -15,13 +15,15 @@ type ArticleRepository interface {
 }
 
 type AuthorRepository interface {
-	CreateNew(ctx context.Context, author models.Author, username, pwd, salt string) (int, error)
+	CreateNew(ctx context.Context, author models.Author) (int, error)
 	GetAll(ctx context.Context) (authors []models.Author, err error)
 
 	GetByID(ctx context.Context, id int) (author models.Author, err error)
 	GetIDByName(ctx context.Context, author models.Author) (id int, err error)
 
-	CheckAuthorExists(username, password string) (int, error)
+	CheckExisting(username string) (bool, error)
+
+	GetSalt(username string) (salt, passwordHash string, err error)
 }
 
 type Authentication interface {

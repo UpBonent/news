@@ -4,26 +4,27 @@ import (
 	"context"
 	"encoding/hex"
 	"github.com/UpBonent/news/src/common/models"
-	"github.com/labstack/echo"
+	"github.com/pkg/errors"
 )
 
-func (a *Application) CreateNewAuthor(ctx context.Context, author models.Author, username, pwd string) (id int, err error) {
-	id, err = a.Author.CheckAuthorExists(username, pwd)
+func (a *Application) CreateNewAuthor(ctx context.Context, author models.Author) (id int, err error) {
+	ok, err := a.CheckUserExisting(author.UserName)
 	if err != nil || id == 0 {
 		return 0, err
 	}
+	if ok == true {
+		return 0, errors.New("The author already exists")
+	}
 
-	salt, err := getSalt()
+	salt, err := generateSalt()
 	if err != nil {
 		return 0, err
 	}
 
-	salt = append(salt, innerSalt...)
+	author.Password = hashing(author.Password, salt)
+	author.Salt = hex.EncodeToString(salt)
 
-	hexPassword := hashing(pwd, salt, 8, 32)
-	hexSalt := hex.EncodeToString(salt)
-
-	id, err = a.Author.CreateNew(ctx, author, username, hexPassword, hexSalt)
+	id, err = a.Author.CreateNew(ctx, author)
 	return
 }
 
@@ -39,15 +40,26 @@ func (a *Application) GetIDByAuthor(ctx context.Context, author models.Author) (
 	return a.Author.GetIDByName(ctx, author)
 }
 
-func (a *Application) CheckUserExist(username, password string, c echo.Context) (ok bool, err error) {
-	id, err := a.Author.CheckAuthorExists(username, password)
+func (a *Application) CheckUserExisting(username string) (bool, error) {
+	return a.Author.CheckExisting(username)
+}
+
+func (a *Application) CheckUserAuthentication(username, password string) (ok bool, err error) {
+	salt, existedPassword, err := a.Author.GetSalt(username)
 	if err != nil {
 		return false, err
 	}
 
-	if id == 0 {
-		return false, nil
+	byteSalt, err := hex.DecodeString(salt)
+	if err != nil {
+		return false, err
 	}
 
-	return true, nil
+	inputPassword := hashing(password, byteSalt)
+
+	if inputPassword == existedPassword {
+		return true, nil
+	}
+
+	return false, errors.New("Wrong username and/or password")
 }

@@ -18,7 +18,8 @@ const (
 	GetAuthorByID   = `SELECT name, surname FROM authors WHERE id = $1`
 	GetAuthorByName = `SELECT id FROM authors WHERE name = $1 AND surname = $2`
 
-	CheckByUsernameNPassword = `SELECT id FROM authors WHERE username = $1 AND password = $2`
+	CheckExisting = `SELECT id FROM authors WHERE username = $1`
+	GetSalt       = `SELECT salt, password FROM authors WHERE username = $1`
 )
 
 type Repository struct {
@@ -29,12 +30,12 @@ func NewRepository(db *sqlx.DB) services.AuthorRepository {
 	return &Repository{db}
 }
 
-func (r *Repository) CreateNew(ctx context.Context, a models.Author, username, pwd, salt string) (id int, err error) {
+func (r *Repository) CreateNew(ctx context.Context, a models.Author) (id int, err error) {
 	if a.Name == "" || a.Surname == "" {
 		return 0, errors.New("error: author's fields is empty")
 	}
 
-	result := r.db.QueryRowxContext(ctx, NewAuthor, a.Name, a.Surname, username, pwd, salt)
+	result := r.db.QueryRowxContext(ctx, NewAuthor, a.Name, a.Surname, a.UserName, a.Password, a.Salt)
 	if result.Err() != nil {
 		return 0, result.Err()
 	}
@@ -85,11 +86,23 @@ func (r *Repository) GetIDByName(ctx context.Context, author models.Author) (id 
 	return
 }
 
-func (r *Repository) CheckAuthorExists(username, password string) (id int, err error) {
-	result := r.db.QueryRowx(CheckByUsernameNPassword, username, password)
+func (r *Repository) CheckExisting(username string) (ok bool, err error) {
+	var id int
+
+	result := r.db.QueryRowx(CheckExisting, username)
 	err = result.Scan(&id)
 	if err != nil {
-		return 0, err
+		return false, err
 	}
+	if ok {
+		return true, nil
+	} else {
+		return false, nil
+	}
+}
+
+func (r *Repository) GetSalt(username string) (salt, passwordHash string, err error) {
+	result := r.db.QueryRowx(GetSalt, username)
+	err = result.Scan(&salt, &passwordHash)
 	return
 }

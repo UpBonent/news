@@ -31,12 +31,12 @@ func (h *handlerAuthor) Register(e *echo.Echo) {
 	g.GET("/articles", h.viewAuthorsArticles)
 
 	g.GET("/create", h.viewCreateForm)
-	g.POST("/create/new", h.createNewAuthor)
+	g.POST("/create", h.createNewAuthor)
 
 	a := g.Group("/profile")
-	a.Use(middleware.BasicAuth(h.application.CheckUserExist))
+	a.Use(middleware.BasicAuth(h.authentication))
 
-	a.GET("", h.auth)
+	a.GET("", h.userProfile)
 }
 
 func (h *handlerAuthor) viewAllAuthor(c echo.Context) (err error) {
@@ -116,7 +116,16 @@ func (h *handlerAuthor) viewAuthorsArticles(c echo.Context) (err error) {
 	return c.JSON(http.StatusOK, allArticlesJSON)
 }
 
-func (h *handlerAuthor) auth(c echo.Context) (err error) {
+func (h *handlerAuthor) userProfile(c echo.Context) (err error) {
 
 	return c.String(http.StatusOK, "Welcome")
+}
+
+func (h *handlerAuthor) authentication(username, passwordHash string, c echo.Context) (ok bool, err error) {
+	ok, err = h.application.CheckUserAuthentication(username, passwordHash)
+	if err != nil {
+		return false, err
+	}
+
+	return
 }

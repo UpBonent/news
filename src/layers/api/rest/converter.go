@@ -2,14 +2,18 @@ package rest
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/UpBonent/news/src/common/models"
 	"time"
 )
 
 type AuthorJSON struct {
-	Id      int    `json:"id"`
-	Name    string `json:"name"`
-	Surname string `json:"surname"`
+	Id       int    `json:"id"`
+	Name     string `json:"name"`
+	Surname  string `json:"surname"`
+	UserName string `json:"user_name"`
+	Password string `json:"password"`
+	Salt     string `json:"salt"`
 
 	Activity bool `json:"activity"`
 }
@@ -26,7 +30,7 @@ type ArticleJSON struct {
 // JSON-string to Model
 func convertAuthorJSONtoModel(reader []byte) (author models.Author, err error) {
 	authorJSON := AuthorJSON{}
-
+	fmt.Println(author)
 	err = json.Unmarshal(reader, &authorJSON)
 	if err != nil {
 		return
@@ -36,6 +40,8 @@ func convertAuthorJSONtoModel(reader []byte) (author models.Author, err error) {
 		Id:       authorJSON.Id,
 		Name:     authorJSON.Name,
 		Surname:  authorJSON.Surname,
+		UserName: authorJSON.UserName,
+		Password: authorJSON.Password,
 		Activity: authorJSON.Activity,
 	}
 	return
@@ -70,6 +76,7 @@ func convertAuthorModelToJSON(author models.Author) AuthorJSON {
 		Id:       author.Id,
 		Name:     author.Name,
 		Surname:  author.Surname,
+		UserName: author.UserName,
 		Activity: author.Activity,
 	}
 }
