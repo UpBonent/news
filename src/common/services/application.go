@@ -11,7 +11,7 @@ type Application interface {
 	UpdateArticle(ctx context.Context, existArticle int, article models.Article) error
 	GetArticlesByAuthorID(ctx context.Context, id int) (articles []models.Article, err error)
 
-	CreateNewAuthor(ctx context.Context, author models.Author) (id int, err error)
+	CreateNewAuthor(ctx context.Context, author models.Author, checkPassword string) (id int, err error)
 	GetAllAuthors(ctx context.Context) (authors []models.Author, err error)
 	GetAuthorByID(ctx context.Context, id int) (author models.Author, err error)
 	GetIDByAuthor(ctx context.Context, author models.Author) (id int, err error)

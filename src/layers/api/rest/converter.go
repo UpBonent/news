@@ -2,7 +2,6 @@ package rest
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/UpBonent/news/src/common/models"
 	"time"
 )
@@ -30,7 +29,6 @@ type ArticleJSON struct {
 // JSON-string to Model
 func convertAuthorJSONtoModel(reader []byte) (author models.Author, err error) {
 	authorJSON := AuthorJSON{}
-	fmt.Println(author)
 	err = json.Unmarshal(reader, &authorJSON)
 	if err != nil {
 		return

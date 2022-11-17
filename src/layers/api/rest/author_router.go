@@ -6,6 +6,7 @@ package rest
 
 import (
 	"context"
+	"github.com/UpBonent/news/src/common/models"
 	"github.com/labstack/echo/middleware"
 	"io"
 	"net/http"
@@ -66,17 +67,16 @@ func (h *handlerAuthor) createNewAuthor(c echo.Context) (err error) {
 		}
 	}()
 
-	reader, err := io.ReadAll(c.Request().Body)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
+	author := models.Author{
+		Name:     c.FormValue("name"),
+		Surname:  c.FormValue("surname"),
+		UserName: c.FormValue("username"),
+		Password: c.FormValue("password"),
 	}
 
-	author, err := convertAuthorJSONtoModel(reader)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
+	checkPassword := c.FormValue("check_password")
 
-	_, err = h.application.CreateNewAuthor(h.ctx, author)
+	_, err = h.application.CreateNewAuthor(h.ctx, author, checkPassword)
 	if err != nil {
 		return
 	}

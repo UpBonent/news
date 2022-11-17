@@ -2,18 +2,23 @@ package application
 
 import (
 	"context"
+	"database/sql"
 	"encoding/hex"
 	"github.com/UpBonent/news/src/common/models"
 	"github.com/pkg/errors"
 )
 
-func (a *Application) CreateNewAuthor(ctx context.Context, author models.Author) (id int, err error) {
-	ok, err := a.CheckUserExisting(author.UserName)
-	if err != nil || id == 0 {
-		return 0, err
+func (a *Application) CreateNewAuthor(ctx context.Context, author models.Author, checkPWD string) (id int, err error) {
+	if author.Password != checkPWD {
+		return 0, errors.New("Passwords are different")
 	}
+
+	ok, err := a.CheckUserExisting(author.UserName)
 	if ok == true {
-		return 0, errors.New("The author already exists")
+		return 0, errors.New("User already exists with the same username")
+	}
+	if err != nil && err != sql.ErrNoRows {
+		return 0, err
 	}
 
 	salt, err := generateSalt()
