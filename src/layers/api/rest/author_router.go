@@ -31,13 +31,16 @@ func (h *handlerAuthor) Register(e *echo.Echo) {
 
 	g.GET("/articles", h.viewAuthorsArticles)
 
-	g.GET("/create", h.viewCreateForm)
-	g.POST("/create", h.createNewAuthor)
+	g.GET("/create", h.newAuthorForm)
+	g.POST("/create", h.newAuthor)
 
-	a := g.Group("/profile")
-	a.Use(middleware.BasicAuth(h.authentication))
+	profile := g.Group("/profile")
+	profile.Use(middleware.BasicAuth(h.authentication))
+	profile.GET("", h.userProfile)
 
-	a.GET("", h.userProfile)
+	profile.GET("/new", h.newArticleForm)
+	profile.POST("/new", h.newArticle)
+
 }
 
 func (h *handlerAuthor) viewAllAuthor(c echo.Context) (err error) {
@@ -55,11 +58,11 @@ func (h *handlerAuthor) viewAllAuthor(c echo.Context) (err error) {
 	return c.JSON(http.StatusOK, allAuthorsJSON)
 }
 
-func (h *handlerAuthor) viewCreateForm(c echo.Context) (err error) {
-	return c.File("../static/html/authors.html")
+func (h *handlerAuthor) newAuthorForm(c echo.Context) (err error) {
+	return c.File("../static/html/new_author_form.html")
 }
 
-func (h *handlerAuthor) createNewAuthor(c echo.Context) (err error) {
+func (h *handlerAuthor) newAuthor(c echo.Context) (err error) {
 	defer func() {
 		err := c.Request().Body.Close()
 		if err != nil {
@@ -117,15 +120,57 @@ func (h *handlerAuthor) viewAuthorsArticles(c echo.Context) (err error) {
 }
 
 func (h *handlerAuthor) userProfile(c echo.Context) (err error) {
-
-	return c.String(http.StatusOK, "Welcome")
+	return c.File("../static/html/author_profile.html")
 }
 
 func (h *handlerAuthor) authentication(username, passwordHash string, c echo.Context) (ok bool, err error) {
+	if username == "" || passwordHash == "" {
+		return false, err
+	}
 	ok, err = h.application.CheckUserAuthentication(username, passwordHash)
 	if err != nil {
 		return false, err
 	}
 
 	return
+}
+
+func (h *handlerAuthor) newArticleForm(c echo.Context) (err error) {
+	return c.File("../static/html/new_article_form.html")
+}
+
+func (h *handlerAuthor) newArticle(c echo.Context) (err error) {
+	defer func() {
+		err = c.Request().Body.Close()
+		if err != nil {
+			return
+		}
+	}()
+
+	reader, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	article, err := convertArticleJSONtoModel(reader)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	author, err := convertAuthorJSONtoModel(reader)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	id, err := h.application.GetIDByAuthor(h.ctx, author)
+	if err != nil {
+		return err
+	}
+
+	err = h.application.CreateNewArticle(h.ctx, article, id)
+	if err != nil {
+		return err
+	}
+
+	return c.String(http.StatusCreated, "yeah, article has been created")
 }

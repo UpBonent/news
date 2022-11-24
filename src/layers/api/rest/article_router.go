@@ -23,7 +23,6 @@ func NewHandlersArticle(ctx context.Context, app services.Application) services.
 func (h *handlerArticle) Register(e *echo.Echo) {
 	g := e.Group("/articles")
 	g.GET("", h.all)
-	g.POST("/create", h.create)
 	g.PUT("/update", h.update)
 }
 
@@ -40,42 +39,6 @@ func (h *handlerArticle) all(c echo.Context) (err error) {
 	}
 
 	return c.JSON(http.StatusOK, allArticlesJSON)
-}
-
-func (h *handlerArticle) create(c echo.Context) (err error) {
-	defer func() {
-		err = c.Request().Body.Close()
-		if err != nil {
-			return
-		}
-	}()
-
-	reader, err := io.ReadAll(c.Request().Body)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	article, err := convertArticleJSONtoModel(reader)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	author, err := convertAuthorJSONtoModel(reader)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	id, err := h.application.GetIDByAuthor(h.ctx, author)
-	if err != nil {
-		return err
-	}
-
-	err = h.application.CreateNewArticle(h.ctx, article, id)
-	if err != nil {
-		return err
-	}
-
-	return c.String(http.StatusCreated, "yeah, article has been created")
 }
 
 func (h *handlerArticle) update(c echo.Context) (err error) {
