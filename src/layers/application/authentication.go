@@ -7,6 +7,11 @@ import (
 	"golang.org/x/crypto/pbkdf2"
 )
 
+const (
+	salt   = 256
+	cookie = 128
+)
+
 var innerSalt = []byte{231, 15, 88, 230, 39, 206, 151, 15}
 
 const (
@@ -23,16 +28,12 @@ func hashing(password string, salt []byte) string {
 	return hex.EncodeToString(now)
 }
 
-func generateSalt() (b []byte, err error) {
-	bigInt, err := rand.Prime(rand.Reader, 256)
+func generate(length int) (b []byte, err error) {
+	bigInt, err := rand.Prime(rand.Reader, length)
 	if err != nil {
 		return
 	}
 
 	b = bigInt.Bytes()
 	return
-}
-
-func generateCookieHash() {
-
 }

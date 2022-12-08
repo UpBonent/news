@@ -10,7 +10,7 @@ import (
 type Application struct {
 	Author  services.AuthorRepository
 	Article services.ArticleRepository
-	Logger  services.Logger //?????????????????????????
+	Logger  services.Logger
 }
 
 func SetApplicationLayer(db *sqlx.DB, logger services.Logger) *Application {

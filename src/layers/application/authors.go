@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"github.com/UpBonent/news/src/common/models"
 	"github.com/pkg/errors"
+	"net/http"
 )
 
 func (a *Application) CreateNewAuthor(ctx context.Context, author models.Author, checkPWD string) (id int, err error) {
@@ -21,13 +22,17 @@ func (a *Application) CreateNewAuthor(ctx context.Context, author models.Author,
 		return 0, err
 	}
 
-	salt, err := generateSalt()
+	s, err := generate(salt)
+	if err != nil {
+		return 0, err
+	}
+	c, err := generate(cookie)
 	if err != nil {
 		return 0, err
 	}
 
-	author.Password = hashing(author.Password, salt)
-	author.Salt = hex.EncodeToString(salt)
+	author.Password = hashing(author.Password, s)
+	author.Salt = hex.EncodeToString(s)
 
 	id, err = a.Author.CreateNew(ctx, author)
 	return
@@ -45,7 +50,7 @@ func (a *Application) GetIDByAuthor(ctx context.Context, author models.Author) (
 	return a.Author.GetIDByName(ctx, author)
 }
 
-func (a *Application) CheckUserExisting(username string) (bool, error) {
+func (a *Application) CheckUserExisting(username string) (bool, error) { //delete this intermediate stage
 	return a.Author.CheckExisting(username)
 }
 
@@ -67,4 +72,18 @@ func (a *Application) CheckUserAuthentication(username, password string) (err er
 	}
 
 	return errors.New("Wrong username and/or password")
+}
+
+func (a *Application) SetUserCookie() (c http.Cookie) {
+
+	userCookie := hex.EncodeToString(c)
+
+	newCookie := http.Cookie{
+		Name:   "i",
+		Value:  ,
+		Path:   "/",
+		Domain: "localhost:8080",
+		MaxAge: 86400,
+	}
+
 }

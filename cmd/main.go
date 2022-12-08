@@ -19,7 +19,7 @@ func main() {
 	var cfg config.Config
 
 	ctx := context.Background()
-	err = cleanenv.ReadConfig("../config.yml", &cfg)
+	err = cleanenv.ReadConfig("./config.yml", &cfg)
 	if err != nil {
 		panic(err)
 	}
@@ -35,7 +35,7 @@ func main() {
 	app := application.SetApplicationLayer(dataBaseConnection, logger)
 
 	e := echo.New()
-	e.Use(middleware.Static("../static"))
+	e.Use(middleware.Static("./static"))
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{Format: `[${time_rfc3339}] ${status} ${method} ${host}${path} ${latency_human}. Error: [${error}]` + "\n"}))
 	e.Use(middleware.Recover())
 

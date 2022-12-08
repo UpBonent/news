@@ -6,7 +6,6 @@ package rest
 
 import (
 	"context"
-	"fmt"
 	"github.com/UpBonent/news/src/common/models"
 	"io"
 	"net/http"
@@ -60,7 +59,7 @@ func (h *handlerAuthor) viewAllAuthor(c echo.Context) (err error) {
 }
 
 func (h *handlerAuthor) newAuthorForm(c echo.Context) (err error) {
-	return c.File("../static/html/new_author_form.html")
+	return c.File("./static/html/new_author_form.html")
 }
 
 func (h *handlerAuthor) newAuthor(c echo.Context) (err error) {
@@ -79,8 +78,6 @@ func (h *handlerAuthor) newAuthor(c echo.Context) (err error) {
 	}
 
 	checkPassword := c.FormValue("check_password")
-
-	cookie := h.application.
 
 	_, err = h.application.CreateNewAuthor(h.ctx, author, checkPassword)
 	if err != nil {
@@ -123,11 +120,11 @@ func (h *handlerAuthor) viewAuthorsArticles(c echo.Context) (err error) {
 }
 
 func (h *handlerAuthor) viewUserProfile(c echo.Context) (err error) {
-	return c.File("../static/html/author_profile.html")
+	return c.File("./static/html/author_profile.html")
 }
 
 func (h *handlerAuthor) viewAuthenticationForm(c echo.Context) error {
-	return c.File("../static/html/auth_author_form.html")
+	return c.File("./static/html/auth_author_form.html")
 }
 
 func (h *handlerAuthor) authentication(c echo.Context) (err error) {
@@ -146,7 +143,7 @@ func (h *handlerAuthor) authentication(c echo.Context) (err error) {
 }
 
 func (h *handlerAuthor) viewNewArticleForm(c echo.Context) (err error) {
-	return c.File("../static/html/new_article_form.html")
+	return c.File("./static/html/new_article_form.html")
 }
 
 func (h *handlerAuthor) newArticle(c echo.Context) (err error) {
@@ -156,7 +153,7 @@ func (h *handlerAuthor) newArticle(c echo.Context) (err error) {
 			return
 		}
 	}()
-	fmt.Println(c.FormValue("date_publish"))
+
 	datePublish, err := time.Parse("2006-01-02", c.FormValue("date_publish"))
 	if err != nil {
 		return c.String(http.StatusBadRequest, "incorrect date, try again")
@@ -180,4 +177,8 @@ func (h *handlerAuthor) newArticle(c echo.Context) (err error) {
 	}
 
 	return c.String(http.StatusCreated, "yeah, article has been created")
+}
+
+func (h *handlerAuthor) setCookie()  {
+	
 }

@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"github.com/UpBonent/news/src/common/models"
+	"net/http"
 )
 
 type Application interface {
@@ -18,4 +19,5 @@ type Application interface {
 
 	CheckUserAuthentication(username, password string) (err error)
 	CheckUserExisting(username string) (bool, error)
+	SetUserCookie() (c http.Cookie)
 }

@@ -7,6 +7,7 @@ type Author struct {
 	UserName string `db:"user_name"`
 	Password string `db:"password"`
 	Salt     string `db:"salt"`
+	Cookie   string `db:"cookie"`
 
 	Activity bool `db:"activity"`
 }
