@@ -22,7 +22,7 @@ type AuthorRepository interface {
 	GetByID(ctx context.Context, id int) (author models.Author, err error)
 	GetIDByName(ctx context.Context, author models.Author) (id int, err error)
 
-	CheckExisting(username string) (bool, error)
+	CheckExisting(username string) (err error)
 
 	GetSalt(username string) (salt, passwordHash string, err error)
 }

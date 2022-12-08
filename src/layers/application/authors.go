@@ -14,12 +14,12 @@ func (a *Application) CreateNewAuthor(ctx context.Context, author models.Author,
 		return 0, errors.New("Passwords are different")
 	}
 
-	ok, err := a.CheckUserExisting(author.UserName)
-	if ok == true {
-		return 0, errors.New("User already exists with the same username")
-	}
+	err = a.Author.CheckExisting(author.UserName)
 	if err != nil && err != sql.ErrNoRows {
 		return 0, err
+	}
+	if err == nil {
+		return 0, errors.New("User already exists with the same username")
 	}
 
 	s, err := generate(salt)
@@ -50,10 +50,6 @@ func (a *Application) GetIDByAuthor(ctx context.Context, author models.Author) (
 	return a.Author.GetIDByName(ctx, author)
 }
 
-func (a *Application) CheckUserExisting(username string) (bool, error) { //delete this intermediate stage
-	return a.Author.CheckExisting(username)
-}
-
 func (a *Application) CheckUserAuthentication(username, password string) (err error) {
 	salt, existedPassword, err := a.Author.GetSalt(username)
 	if err != nil {
@@ -74,16 +70,24 @@ func (a *Application) CheckUserAuthentication(username, password string) (err er
 	return errors.New("Wrong username and/or password")
 }
 
-func (a *Application) SetUserCookie() (c http.Cookie) {
+func (a *Application) SetUserCookie(userName string) (newCookie http.Cookie, err error) {
+	cake, err := generate(cookie)
+	if err != nil {
+		return
+	}
 
-	userCookie := hex.EncodeToString(c)
+	userCookie := hex.EncodeToString(cake)
 
-	newCookie := http.Cookie{
+	newCookie = http.Cookie{
 		Name:   "i",
-		Value:  ,
+		Value:  userCookie,
 		Path:   "/",
 		Domain: "localhost:8080",
 		MaxAge: 86400,
 	}
+	return
+}
+
+func (a *Application) GetAuthorByCookie(c string) (author models.Author) {
 
 }

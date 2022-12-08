@@ -18,6 +18,7 @@ type Application interface {
 	GetIDByAuthor(ctx context.Context, author models.Author) (id int, err error)
 
 	CheckUserAuthentication(username, password string) (err error)
-	CheckUserExisting(username string) (bool, error)
-	SetUserCookie() (c http.Cookie)
+
+	SetUserCookie(userName string) (c http.Cookie, err error)
+	GetAuthorByCookie(c string) (author models.Author)
 }

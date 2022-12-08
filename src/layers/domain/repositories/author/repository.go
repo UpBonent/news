@@ -18,8 +18,8 @@ const (
 	GetAuthorByID   = `SELECT name, surname FROM authors WHERE id = $1`
 	GetAuthorByName = `SELECT id FROM authors WHERE name = $1 AND surname = $2`
 
-	CheckExisting = `SELECT id FROM authors WHERE username = $1`
-	GetSalt       = `SELECT salt, password FROM authors WHERE username = $1`
+	CheckUserNameExisting = `SELECT id FROM authors WHERE username = $1`
+	GetSalt               = `SELECT salt, password FROM authors WHERE username = $1`
 )
 
 type Repository struct {
@@ -86,19 +86,12 @@ func (r *Repository) GetIDByName(ctx context.Context, author models.Author) (id 
 	return
 }
 
-func (r *Repository) CheckExisting(username string) (ok bool, err error) {
+func (r *Repository) CheckExisting(username string) (err error) {
 	var id int
-
-	result := r.db.QueryRowx(CheckExisting, username)
+	
+	result := r.db.QueryRowx(CheckUserNameExisting, username)
 	err = result.Scan(&id)
-	if err != nil {
-		return false, err
-	}
-	if ok {
-		return true, nil
-	} else {
-		return false, nil
-	}
+	return
 }
 
 func (r *Repository) GetSalt(username string) (salt, passwordHash string, err error) {
