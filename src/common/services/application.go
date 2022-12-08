@@ -16,6 +16,6 @@ type Application interface {
 	GetAuthorByID(ctx context.Context, id int) (author models.Author, err error)
 	GetIDByAuthor(ctx context.Context, author models.Author) (id int, err error)
 
-	CheckUserAuthentication(username, password string) (ok bool, err error)
+	CheckUserAuthentication(username, password string) (err error)
 	CheckUserExisting(username string) (bool, error)
 }

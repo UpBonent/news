@@ -5,10 +5,11 @@ package services
 import (
 	"context"
 	"github.com/UpBonent/news/src/common/models"
+	"time"
 )
 
 type ArticleRepository interface {
-	CreateNew(ctx context.Context, article models.Article, id int) error
+	CreateNew(ctx context.Context, article models.Article, dateCreate time.Time, id int) (err error)
 	GetAll(ctx context.Context) (articles []models.Article, err error)
 	Update(ctx context.Context, existArticle int, article models.Article) error
 	GetByAuthorID(ctx context.Context, id int) (articles []models.Article, err error)

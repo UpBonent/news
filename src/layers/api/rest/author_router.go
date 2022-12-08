@@ -6,10 +6,11 @@ package rest
 
 import (
 	"context"
+	"fmt"
 	"github.com/UpBonent/news/src/common/models"
-	"github.com/labstack/echo/middleware"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/UpBonent/news/src/common/services"
 
@@ -35,12 +36,12 @@ func (h *handlerAuthor) Register(e *echo.Echo) {
 	g.POST("/create", h.newAuthor)
 
 	profile := g.Group("/profile")
-	profile.Use(middleware.BasicAuth(h.authentication))
-	profile.GET("", h.userProfile)
+	profile.POST("", h.viewUserProfile)
+	profile.GET("/auth", h.viewAuthenticationForm)
+	profile.POST("/auth", h.authentication)
 
-	profile.GET("/new", h.newArticleForm)
+	profile.GET("/new", h.viewNewArticleForm)
 	profile.POST("/new", h.newArticle)
-
 }
 
 func (h *handlerAuthor) viewAllAuthor(c echo.Context) (err error) {
@@ -78,6 +79,8 @@ func (h *handlerAuthor) newAuthor(c echo.Context) (err error) {
 	}
 
 	checkPassword := c.FormValue("check_password")
+
+	cookie := h.application.
 
 	_, err = h.application.CreateNewAuthor(h.ctx, author, checkPassword)
 	if err != nil {
@@ -119,23 +122,30 @@ func (h *handlerAuthor) viewAuthorsArticles(c echo.Context) (err error) {
 	return c.JSON(http.StatusOK, allArticlesJSON)
 }
 
-func (h *handlerAuthor) userProfile(c echo.Context) (err error) {
+func (h *handlerAuthor) viewUserProfile(c echo.Context) (err error) {
 	return c.File("../static/html/author_profile.html")
 }
 
-func (h *handlerAuthor) authentication(username, passwordHash string, c echo.Context) (ok bool, err error) {
-	if username == "" || passwordHash == "" {
-		return false, err
-	}
-	ok, err = h.application.CheckUserAuthentication(username, passwordHash)
-	if err != nil {
-		return false, err
-	}
-
-	return
+func (h *handlerAuthor) viewAuthenticationForm(c echo.Context) error {
+	return c.File("../static/html/auth_author_form.html")
 }
 
-func (h *handlerAuthor) newArticleForm(c echo.Context) (err error) {
+func (h *handlerAuthor) authentication(c echo.Context) (err error) {
+	username := c.FormValue("username")
+	password := c.FormValue("password")
+	if username == "" || password == "" {
+		return c.String(http.StatusBadRequest, "fill all fields")
+	}
+
+	err = h.application.CheckUserAuthentication(username, password)
+	if err != nil {
+		return c.String(http.StatusBadRequest, "user don't exist")
+	}
+
+	return c.Redirect(http.StatusPermanentRedirect, "/authors/profile")
+}
+
+func (h *handlerAuthor) viewNewArticleForm(c echo.Context) (err error) {
 	return c.File("../static/html/new_article_form.html")
 }
 
@@ -146,28 +156,25 @@ func (h *handlerAuthor) newArticle(c echo.Context) (err error) {
 			return
 		}
 	}()
-
-	reader, err := io.ReadAll(c.Request().Body)
+	fmt.Println(c.FormValue("date_publish"))
+	datePublish, err := time.Parse("2006-01-02", c.FormValue("date_publish"))
 	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
+		return c.String(http.StatusBadRequest, "incorrect date, try again")
 	}
 
-	article, err := convertArticleJSONtoModel(reader)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
+	article := models.Article{
+		Header:      c.FormValue("header"),
+		Text:        c.FormValue("text"),
+		Annotation:  c.FormValue("annotation"),
+		DatePublish: datePublish,
 	}
 
-	author, err := convertAuthorJSONtoModel(reader)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
+	//id, err := h.application.GetIDByAuthor(h.ctx, author)
+	//if err != nil {
+	//	return err
+	//}
 
-	id, err := h.application.GetIDByAuthor(h.ctx, author)
-	if err != nil {
-		return err
-	}
-
-	err = h.application.CreateNewArticle(h.ctx, article, id)
+	err = h.application.CreateNewArticle(h.ctx, article, 1)
 	if err != nil {
 		return err
 	}

@@ -32,3 +32,7 @@ func generateSalt() (b []byte, err error) {
 	b = bigInt.Bytes()
 	return
 }
+
+func generateCookieHash() {
+
+}

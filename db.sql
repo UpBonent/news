@@ -13,8 +13,8 @@ create table articles
 (
     id              smallserial NOT NULL,
     header          varchar(65) NOT NULL,
-    annotation      varchar(150) NOT NULL,
     text            text NOT NULL,
+    annotation      varchar(150) NOT NULL,
     date_create     timestamp NOT NULL,
     date_publish    timestamp NOT NULL,
     author_id       int references authors(id)
@@ -22,3 +22,5 @@ create table articles
 
 drop table articles;
 drop table authors;
+
+alter table

@@ -49,22 +49,22 @@ func (a *Application) CheckUserExisting(username string) (bool, error) {
 	return a.Author.CheckExisting(username)
 }
 
-func (a *Application) CheckUserAuthentication(username, password string) (ok bool, err error) {
+func (a *Application) CheckUserAuthentication(username, password string) (err error) {
 	salt, existedPassword, err := a.Author.GetSalt(username)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	byteSalt, err := hex.DecodeString(salt)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	inputPassword := hashing(password, byteSalt)
 
 	if inputPassword == existedPassword {
-		return true, nil
+		return nil
 	}
 
-	return false, errors.New("Wrong username and/or password")
+	return errors.New("Wrong username and/or password")
 }

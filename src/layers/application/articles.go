@@ -3,10 +3,12 @@ package application
 import (
 	"context"
 	"github.com/UpBonent/news/src/common/models"
+	"time"
 )
 
 func (a *Application) CreateNewArticle(ctx context.Context, article models.Article, id int) error {
-	return a.Article.CreateNew(ctx, article, id)
+	dateCreate := time.Now().Round(time.Minute)
+	return a.Article.CreateNew(ctx, article, dateCreate, id)
 }
 
 func (a *Application) GetAllArticles(ctx context.Context) (articles []models.Article, err error) {
