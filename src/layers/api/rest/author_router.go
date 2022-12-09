@@ -7,7 +7,7 @@ package rest
 import (
 	"context"
 	"github.com/UpBonent/news/src/common/models"
-	"io"
+	"github.com/pkg/errors"
 	"net/http"
 	"time"
 
@@ -79,33 +79,30 @@ func (h *handlerAuthor) newAuthor(c echo.Context) (err error) {
 
 	checkPassword := c.FormValue("check_password")
 
-	_, err = h.application.CreateNewAuthor(h.ctx, author, checkPassword)
+	_, cookieValue, err := h.application.CreateNewAuthor(h.ctx, author, checkPassword)
 	if err != nil {
 		return
 	}
+
+	cookie := h.application.SetUserCookie(cookieValue)
+	c.SetCookie(&cookie)
 
 	return c.String(http.StatusCreated, "yeah, author has been created")
 }
 
 func (h *handlerAuthor) viewAuthorsArticles(c echo.Context) (err error) {
-	defer func() {
-		err = c.Request().Body.Close()
-		if err != nil {
-			return
-		}
-	}()
 
-	reader, err := io.ReadAll(c.Request().Body)
+	cookie, err := c.Cookie("i")
 	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
+		return err
 	}
 
-	author, err := convertAuthorJSONtoModel(reader)
-	if author.Id == 0 {
-		return c.String(http.StatusBadRequest, "author ID is empty or equal zero")
+	author, err := h.application.GetAuthorByCookie(cookie.String())
+	if err != nil {
+		return err
 	}
 
-	articles, err := h.application.GetArticlesByAuthorID(h.ctx, author.Id)
+	articles, err := h.application.GetArticlesByAuthorID(h.ctx, author)
 	if err != nil {
 		return
 	}
@@ -134,11 +131,16 @@ func (h *handlerAuthor) authentication(c echo.Context) (err error) {
 		return c.String(http.StatusBadRequest, "fill all fields")
 	}
 
-	err = h.application.CheckUserAuthentication(username, password)
+	cookie, err := h.application.CheckUserAuthentication(username, password)
+
 	if err != nil {
-		return c.String(http.StatusBadRequest, "user don't exist")
+		if errors.As(err, "Wrong username and/or password") {
+			return c.String(http.StatusBadRequest, err.Error())
+		}
+		return c.String(http.StatusInternalServerError, "Try again")
 	}
 
+	c.SetCookie(&cookie)
 	return c.Redirect(http.StatusPermanentRedirect, "/authors/profile")
 }
 
@@ -177,8 +179,4 @@ func (h *handlerAuthor) newArticle(c echo.Context) (err error) {
 	}
 
 	return c.String(http.StatusCreated, "yeah, article has been created")
-}
-
-func (h *handlerAuthor) setCookie()  {
-	
 }

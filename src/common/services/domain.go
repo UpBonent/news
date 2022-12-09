@@ -25,8 +25,6 @@ type AuthorRepository interface {
 	CheckExisting(username string) (err error)
 
 	GetSalt(username string) (salt, passwordHash string, err error)
-}
-
-type Authentication interface {
-	CheckUser(ctx context.Context, username, password string) (bool, error)
+	GetCookieValue(username string) (cookieValue string, err error)
+	GetAuthorByCookie(cookie string) (author models.Author, err error)
 }

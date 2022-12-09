@@ -6,7 +6,8 @@ create table authors
     activity bool DEFAULT true,
     username varchar(20) NOT NULL,
     password char(64) NOT NULL,
-    salt     char(64) NOT NULL
+    salt     char(64) NOT NULL,
+    cookie   char(32) NOT NULL
 );
 
 create table articles
@@ -23,4 +24,3 @@ create table articles
 drop table articles;
 drop table authors;
 
-alter table

@@ -20,6 +20,9 @@ const (
 
 	CheckUserNameExisting = `SELECT id FROM authors WHERE username = $1`
 	GetSalt               = `SELECT salt, password FROM authors WHERE username = $1`
+
+	GetCookieValue    = `SELECT cookie FROM authors WHERE username = $1`
+	GetAuthorByCookie = `SELECT id FROM authors WHERE cookie = $1`
 )
 
 type Repository struct {
@@ -88,7 +91,7 @@ func (r *Repository) GetIDByName(ctx context.Context, author models.Author) (id 
 
 func (r *Repository) CheckExisting(username string) (err error) {
 	var id int
-	
+
 	result := r.db.QueryRowx(CheckUserNameExisting, username)
 	err = result.Scan(&id)
 	return
@@ -97,5 +100,17 @@ func (r *Repository) CheckExisting(username string) (err error) {
 func (r *Repository) GetSalt(username string) (salt, passwordHash string, err error) {
 	result := r.db.QueryRowx(GetSalt, username)
 	err = result.Scan(&salt, &passwordHash)
+	return
+}
+
+func (r *Repository) GetCookieValue(username string) (cookieValue string, err error) {
+	result := r.db.QueryRowx(GetCookieValue, username)
+	err = result.Scan(&cookieValue)
+	return
+}
+
+func (r *Repository) GetAuthorByCookie(cookie string) (author models.Author, err error) {
+	result := r.db.QueryRowx(GetAuthorByCookie, cookie)
+	err = result.Scan(&author.Id)
 	return
 }

@@ -26,7 +26,7 @@ func (a *Application) CreateNewAuthor(ctx context.Context, author models.Author,
 	if err != nil {
 		return 0, err
 	}
-	c, err := generate(cookie)
+	c, err := generate(cookieValue)
 	if err != nil {
 		return 0, err
 	}
@@ -35,7 +35,8 @@ func (a *Application) CreateNewAuthor(ctx context.Context, author models.Author,
 	author.Salt = hex.EncodeToString(s)
 
 	id, err = a.Author.CreateNew(ctx, author)
-	return
+
+	return a.Author.
 }
 
 func (a *Application) GetAllAuthors(ctx context.Context) (authors []models.Author, err error) {
@@ -71,7 +72,8 @@ func (a *Application) CheckUserAuthentication(username, password string) (err er
 }
 
 func (a *Application) SetUserCookie(userName string) (newCookie http.Cookie, err error) {
-	cake, err := generate(cookie)
+
+if userName	cake, err := generate(cookieValue)
 	if err != nil {
 		return
 	}

@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	salt   = 256
-	cookie = 128
+	salt        = 256
+	cookieValue = 128
 )
 
 var innerSalt = []byte{231, 15, 88, 230, 39, 206, 151, 15}
