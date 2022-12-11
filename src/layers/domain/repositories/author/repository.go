@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	NewAuthor  = `INSERT INTO authors(name, surname, username, password, salt) VALUES($1, $2, $3, $4, $5) RETURNING id`
+	NewAuthor  = `INSERT INTO authors(name, surname, username, password, salt, cookie) VALUES($1, $2, $3, $4, $5, $6) RETURNING id`
 	AllAuthors = `SELECT id, name, surname FROM authors`
 
 	GetAuthorByID   = `SELECT name, surname FROM authors WHERE id = $1`
@@ -38,7 +38,7 @@ func (r *Repository) CreateNew(ctx context.Context, a models.Author) (id int, er
 		return 0, errors.New("error: author's fields is empty")
 	}
 
-	result := r.db.QueryRowxContext(ctx, NewAuthor, a.Name, a.Surname, a.UserName, a.Password, a.Salt)
+	result := r.db.QueryRowxContext(ctx, NewAuthor, a.Name, a.Surname, a.UserName, a.Password, a.Salt, a.CookieValue)
 	if result.Err() != nil {
 		return 0, result.Err()
 	}
@@ -109,8 +109,8 @@ func (r *Repository) GetCookieValue(username string) (cookieValue string, err er
 	return
 }
 
-func (r *Repository) GetAuthorByCookie(cookie string) (author models.Author, err error) {
-	result := r.db.QueryRowx(GetAuthorByCookie, cookie)
+func (r *Repository) GetAuthorByCookie(cookieValue string) (author models.Author, err error) {
+	result := r.db.QueryRowx(GetAuthorByCookie, cookieValue)
 	err = result.Scan(&author.Id)
 	return
 }

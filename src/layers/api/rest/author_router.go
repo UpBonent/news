@@ -84,7 +84,7 @@ func (h *handlerAuthor) newAuthor(c echo.Context) (err error) {
 		return
 	}
 
-	cookie := h.application.SetUserCookie(cookieValue)
+	cookie, err := h.application.SetUserCookie(cookieValue)
 	c.SetCookie(&cookie)
 
 	return c.String(http.StatusCreated, "yeah, author has been created")
@@ -102,7 +102,7 @@ func (h *handlerAuthor) viewAuthorsArticles(c echo.Context) (err error) {
 		return err
 	}
 
-	articles, err := h.application.GetArticlesByAuthorID(h.ctx, author)
+	articles, err := h.application.GetArticlesByAuthorID(h.ctx, author.Id)
 	if err != nil {
 		return
 	}
@@ -131,8 +131,7 @@ func (h *handlerAuthor) authentication(c echo.Context) (err error) {
 		return c.String(http.StatusBadRequest, "fill all fields")
 	}
 
-	cookie, err := h.application.CheckUserAuthentication(username, password)
-
+	err = h.application.CheckUserAuthentication(username, password)
 	if err != nil {
 		if errors.As(err, "Wrong username and/or password") {
 			return c.String(http.StatusBadRequest, err.Error())
@@ -140,7 +139,14 @@ func (h *handlerAuthor) authentication(c echo.Context) (err error) {
 		return c.String(http.StatusInternalServerError, "Try again")
 	}
 
+	cookieValue, err := h.application.GetCookieByUserName(username)
+	cookie, err := h.application.SetUserCookie(cookieValue)
+	if err != nil {
+		return
+	}
+
 	c.SetCookie(&cookie)
+
 	return c.Redirect(http.StatusPermanentRedirect, "/authors/profile")
 }
 

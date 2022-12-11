@@ -9,34 +9,35 @@ import (
 	"net/http"
 )
 
-func (a *Application) CreateNewAuthor(ctx context.Context, author models.Author, checkPWD string) (id int, err error) {
+func (a *Application) CreateNewAuthor(ctx context.Context, author models.Author, checkPWD string) (id int, c string, err error) {
 	if author.Password != checkPWD {
-		return 0, errors.New("Passwords are different")
+		return 0, "", errors.New("Passwords are different")
 	}
 
 	err = a.Author.CheckExisting(author.UserName)
 	if err != nil && err != sql.ErrNoRows {
-		return 0, err
+		return 0, "", err
 	}
 	if err == nil {
-		return 0, errors.New("User already exists with the same username")
+		return 0, "", errors.New("User already exists with the same username")
 	}
 
 	s, err := generate(salt)
 	if err != nil {
-		return 0, err
+		return 0, "", err
 	}
-	c, err := generate(cookieValue)
+	cookieValue, err := generate(cookieValue)
 	if err != nil {
-		return 0, err
+		return 0, "", err
 	}
 
 	author.Password = hashing(author.Password, s)
 	author.Salt = hex.EncodeToString(s)
+	author.CookieValue = hex.EncodeToString(cookieValue)
 
 	id, err = a.Author.CreateNew(ctx, author)
 
-	return a.Author.
+	return
 }
 
 func (a *Application) GetAllAuthors(ctx context.Context) (authors []models.Author, err error) {
@@ -71,18 +72,10 @@ func (a *Application) CheckUserAuthentication(username, password string) (err er
 	return errors.New("Wrong username and/or password")
 }
 
-func (a *Application) SetUserCookie(userName string) (newCookie http.Cookie, err error) {
-
-if userName	cake, err := generate(cookieValue)
-	if err != nil {
-		return
-	}
-
-	userCookie := hex.EncodeToString(cake)
-
+func (a *Application) SetUserCookie(cookieValue string) (newCookie http.Cookie, err error) {
 	newCookie = http.Cookie{
 		Name:   "i",
-		Value:  userCookie,
+		Value:  cookieValue,
 		Path:   "/",
 		Domain: "localhost:8080",
 		MaxAge: 86400,
@@ -90,6 +83,10 @@ if userName	cake, err := generate(cookieValue)
 	return
 }
 
-func (a *Application) GetAuthorByCookie(c string) (author models.Author) {
+func (a *Application) GetAuthorByCookie(cookieValue string) (author models.Author, err error) {
+	return a.Author.GetAuthorByCookie(cookieValue)
+}
 
+func (a *Application) GetCookieByUserName(username string) (cookieValue string, err error) {
+	return a.Author.GetCookieValue(username)
 }

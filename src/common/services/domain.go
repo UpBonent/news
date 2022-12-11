@@ -26,5 +26,5 @@ type AuthorRepository interface {
 
 	GetSalt(username string) (salt, passwordHash string, err error)
 	GetCookieValue(username string) (cookieValue string, err error)
-	GetAuthorByCookie(cookie string) (author models.Author, err error)
+	GetAuthorByCookie(cookieValue string) (author models.Author, err error)
 }

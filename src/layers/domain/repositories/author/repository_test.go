@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestRepository_Insert(t *testing.T) {
+func TestRepository_CreateNew(t *testing.T) {
 	sqlDB, mock, err := sqlmock.New()
 	if err != nil {
 		panic(err)
