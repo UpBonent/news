@@ -2,8 +2,9 @@
 
 This project contains:
 - REST API (based on the echo framework);
-- logger (based on the logrus library and the lib/pq driver)
+- my own light logger;
 - postgresql;
+- simple front-end with js
 
 It based on the hexagonal architecture. 
 

@@ -85,7 +85,7 @@ func convertArticleModelToJSON(article models.Article) ArticleJSON {
 		Header:      article.Header,
 		Text:        article.Text,
 		DateCreate:  article.DateCreate.Format("02.01.06 15:04"),
-		DatePublish: article.DatePublish.Format("02.01.06 15:04"),
+		DatePublish: article.DatePublish.Format("2006-01-02 15:04:.000"),
 		AuthorID:    article.AuthorID,
 	}
 }

@@ -17,8 +17,8 @@ function showArticles(jsonObj) {
         let time = document.createElement('time');
 
         h3.textContent = jsonObj[i].header;
-        p1.textContent = jsonObj[i].text;
-        time.textContent = 'Date of create: ' + jsonObj[i].date_create;
+        p1.textContent = jsonObj[i].annotation;
+        time.textContent = 'Publish date: ' + jsonObj[i].date_publish;
 
         listItem.appendChild(h3);
         listItem.appendChild(p1);

@@ -117,7 +117,33 @@ func (h *handlerAuthor) viewAuthorsArticles(c echo.Context) (err error) {
 }
 
 func (h *handlerAuthor) viewUserProfile(c echo.Context) (err error) {
-	return c.File("./static/html/author_profile.html")
+	err = c.File("./static/html/author_profile.html")
+	if err != nil {
+		return err
+	}
+
+	cookie, err := c.Cookie("i")
+	if err != nil {
+		return err
+	}
+
+	author, err := h.application.GetAuthorByCookie(cookie.String())
+	if err != nil {
+		return err
+	}
+
+	articles, err := h.application.GetArticlesByAuthorID(h.ctx, author.Id)
+	if err != nil {
+		return
+	}
+
+	var allArticlesJSON []ArticleJSON
+	for _, article := range articles {
+		articleJSON := convertArticleModelToJSON(article)
+		allArticlesJSON = append(allArticlesJSON, articleJSON)
+	}
+
+	return c.JSON(http.StatusOK, allArticlesJSON)
 }
 
 func (h *handlerAuthor) viewAuthenticationForm(c echo.Context) error {

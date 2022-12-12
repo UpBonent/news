@@ -22,8 +22,8 @@ func TestRepository_Insert(t *testing.T) {
 	r := NewRepository(sqlx.NewDb(sqlDB, "postgres"))
 
 	type args struct {
-		art models.Article
-		id  int
+		art      models.Article
+		authorID int
 	}
 	type mockBehavior func(args args)
 
@@ -39,9 +39,9 @@ func TestRepository_Insert(t *testing.T) {
 				art: models.Article{
 					Header:      "There's test header",
 					Text:        "There's long long long long long test text",
-					DatePublish: "01.01.22 12:00",
+					DatePublish: time.Now(),
 				},
-				id: 1,
+				authorID: 1,
 			},
 			mockBehavior: func(args args) {
 				dateCreate := time.Now().Round(time.Minute)
@@ -49,7 +49,7 @@ func TestRepository_Insert(t *testing.T) {
 				assert.NoError(t, err)
 
 				mock.ExpectExec("INSERT INTO articles").
-					WithArgs(args.art.Header, args.art.Text, dateCreate, parseDatePublish, args.id).
+					WithArgs(args.art.Header, args.art.Text, dateCreate, parseDatePublish, args.authorID).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 			},
 			wantErr: false,
@@ -62,7 +62,7 @@ func TestRepository_Insert(t *testing.T) {
 					Text:        "",
 					DatePublish: "01.01.22 12:00",
 				},
-				id: 1,
+				authorID: 1,
 			},
 			mockBehavior: func(args args) {
 				dateCreate := time.Now().Round(time.Minute)
@@ -70,7 +70,7 @@ func TestRepository_Insert(t *testing.T) {
 				assert.NoError(t, err)
 
 				mock.ExpectExec("INSERT INTO articles").
-					WithArgs(args.art.Header, args.art.Text, dateCreate, parseDatePublish, args.id).
+					WithArgs(args.art.Header, args.art.Text, dateCreate, parseDatePublish, args.authorID).
 					WillReturnResult(sqlmock.NewResult(1, 1)).
 					WillReturnError(errors.New("insert error"))
 			},
@@ -94,7 +94,7 @@ func TestRepository_Insert(t *testing.T) {
 					Text:        "There's long long long long long test text",
 					DatePublish: "01.01.22 12:00",
 				},
-				id: 0,
+				authorID: 0,
 			},
 			mockBehavior: func(args args) {
 				dateCreate := time.Now().Round(time.Minute)
@@ -102,7 +102,7 @@ func TestRepository_Insert(t *testing.T) {
 				assert.NoError(t, err)
 
 				mock.ExpectExec("INSERT INTO articles").
-					WithArgs(args.art.Header, args.art.Text, dateCreate, parseDatePublish, args.id).
+					WithArgs(args.art.Header, args.art.Text, dateCreate, parseDatePublish, args.authorID).
 					WillReturnResult(sqlmock.NewResult(1, 1)).
 					WillReturnError(sql.ErrNoRows)
 			},
@@ -114,7 +114,7 @@ func TestRepository_Insert(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockBehavior(tt.args)
 
-			err = r.CreateNew(ctx, tt.args.art, tt.args.id)
+			err = r.CreateNew(ctx, tt.args.art, tt.args.authorID)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
