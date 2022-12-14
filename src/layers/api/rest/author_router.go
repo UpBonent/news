@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/UpBonent/news/src/common/services"
+	customErr "github.com/UpBonent/news/src/layers/infrastructure/errors"
 
 	"github.com/labstack/echo"
 )
@@ -69,7 +70,6 @@ func (h *handlerAuthor) newAuthor(c echo.Context) (err error) {
 			return
 		}
 	}()
-
 	author := models.Author{
 		Name:     c.FormValue("name"),
 		Surname:  c.FormValue("surname"),
@@ -77,14 +77,24 @@ func (h *handlerAuthor) newAuthor(c echo.Context) (err error) {
 		Password: c.FormValue("password"),
 	}
 
-	checkPassword := c.FormValue("check_password")
+	if author.Password != c.FormValue("check_password") {
+		return c.String(http.StatusBadRequest, "These passwords are different")
+	}
 
-	_, cookieValue, err := h.application.CreateNewAuthor(h.ctx, author, checkPassword)
+	if author.Name == "" || author.Surname == "" || author.UserName == "" || author.Password == "" {
+		return c.String(http.StatusBadRequest, "Fill all fields")
+	}
+
+	_, cookieValue, err := h.application.CreateNewAuthor(h.ctx, author)
 	if err != nil {
+		if err == customErr.DifferentPassword {
+			return c.String(http.StatusBadRequest, customErr.DifferentPassword.Error())
+		}
+
 		return
 	}
 
-	cookie, err := h.application.SetUserCookie(cookieValue)
+	cookie := h.application.SetUserCookie(cookieValue)
 	c.SetCookie(&cookie)
 
 	return c.String(http.StatusCreated, "yeah, author has been created")
@@ -156,7 +166,6 @@ func (h *handlerAuthor) authentication(c echo.Context) (err error) {
 	if username == "" || password == "" {
 		return c.String(http.StatusBadRequest, "fill all fields")
 	}
-
 	err = h.application.CheckUserAuthentication(username, password)
 	if err != nil {
 		if errors.As(err, "Wrong username and/or password") {
@@ -166,11 +175,11 @@ func (h *handlerAuthor) authentication(c echo.Context) (err error) {
 	}
 
 	cookieValue, err := h.application.GetCookieByUserName(username)
-	cookie, err := h.application.SetUserCookie(cookieValue)
 	if err != nil {
 		return
 	}
 
+	cookie := h.application.SetUserCookie(cookieValue)
 	c.SetCookie(&cookie)
 
 	return c.Redirect(http.StatusPermanentRedirect, "/authors/profile")

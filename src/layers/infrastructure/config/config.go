@@ -19,7 +19,7 @@ type StorageConfig struct {
 }
 
 type Log struct {
-	ActiveLevels []string `yaml:"active_levels"`
-	Output       string   `yaml:"output"`
-	PathToFile   string   `yaml:"path_to_file"`
+	ActiveLevels []string `yaml:"active_levels" env-default:"all"`
+	Output       string   `yaml:"output" env-default:"stdout"`
+	PathToFile   string   `yaml:"path_to_file" env-default:"all.log"`
 }

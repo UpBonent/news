@@ -2,7 +2,6 @@ package logging
 
 import (
 	"fmt"
-	"github.com/UpBonent/news/src/layers/infrastructure/config"
 	"github.com/sirupsen/logrus"
 	"io"
 	"path"
@@ -31,7 +30,7 @@ func (hook *writerHook) Levels() []logrus.Level {
 	return hook.LogLevels
 }
 
-func newLogger(w io.Writer) *logrus.Logger {
+func NewLogger(w io.Writer) *logrus.Entry {
 	l := logrus.New()
 	l.SetReportCaller(true)
 	l.Formatter = &logrus.TextFormatter{
@@ -39,21 +38,18 @@ func newLogger(w io.Writer) *logrus.Logger {
 			filename := path.Base(frame.File)
 			return fmt.Sprintf("%s()", frame.Function), fmt.Sprintf("%s in line:%d", filename, frame.Line)
 		},
-		DisableColors: true,
-		FullTimestamp: true,
+		DisableColors: false,
+		FullTimestamp: false,
 	}
-	l.SetOutput(w)
+	l.SetOutput(io.Discard)
 	l.AddHook(&writerHook{
 		Writer:    []io.Writer{w},
 		LogLevels: logrus.AllLevels,
 	})
 
-	return logrus.NewEntry(l).Logger
+	return logrus.NewEntry(l)
 }
 
-func NewLogger(cfg config.Log) *logrus.Logger {
-	w := setLoggerOutput(cfg.Output, cfg.PathToFile)
-	l := newLogger(w)
-	activatorLevels(l, cfg.ActiveLevels)
-	return l
-}
+//func NewLogger(w io.Writer) *logrus.Entry {
+//	return newLogger(w)
+//}
