@@ -1,11 +1,7 @@
 package config
 
 type Config struct {
-	Log struct {
-		ActiveLevels []string `yaml:"active_levels"`
-		Output       string   `yaml:"output"`
-		PathToFile   string   `yaml:"path_to_file"`
-	} `yaml:"log"`
+	Log    `yaml:"log"`
 	Listen struct {
 		BindIP string `yaml:"bind_ip" env-default:"127.0.0.1"`
 		Port   string `yaml:"port" env-default:"8080"`
@@ -20,4 +16,10 @@ type StorageConfig struct {
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
 	SSLMode  string `yaml:"sslmode"`
+}
+
+type Log struct {
+	ActiveLevels []string `yaml:"active_levels" env-default:"all"`
+	Output       string   `yaml:"output" env-default:"stdout"`
+	PathToFile   string   `yaml:"path_to_file" env-default:"all.log"`
 }

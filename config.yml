@@ -1,10 +1,10 @@
 ---
 
 log:
-  active_levels: # "info", "error", "fatal" - "all"
+  active_levels: # "info", "error", "fatal" - "all"; "all" specified as default
     - "all"
-  output: "stdout" # "stdout" or "file"
-  path_to_file:
+  output: "file" # "stdout" or "file", stdout specified as default
+  path_to_file: # "all.log" specified as default
 listen:
   bing_ip: 127.0.0.1
   port: ":8080"
@@ -12,7 +12,7 @@ storage:
   host: localhost
   port: 5432
   database: postgres
-  username: docker
-  password: docker
+  username: postgres
+  password: postgres
   sslmode: disable
 
