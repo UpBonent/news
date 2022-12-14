@@ -31,7 +31,7 @@ func (o *OutPutToFile) Write(b []byte) (int, error) {
 	return n, err
 }
 
-func SetLoggerOutput(output, pathToFile string) services.LoggerOutput {
+func setLoggerOutput(output, pathToFile string) services.LoggerOutput {
 	switch output {
 	case "file":
 		logFile, err := os.OpenFile(pathToFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0777)

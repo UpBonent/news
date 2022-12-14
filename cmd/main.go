@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-
 	"github.com/UpBonent/news/src/layers/application"
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/labstack/echo"
@@ -24,8 +23,7 @@ func main() {
 		panic(err)
 	}
 
-	logOutput := logging.SetLoggerOutput(cfg.Log.Output, cfg.Log.PathToFile)
-	logger := logging.NewLogger(cfg.Log.ActiveLevels, logOutput)
+	logger := logging.NewLogger(cfg.Log)
 
 	dataBaseConnection, err := postgres.NewClient(ctx, cfg.Storage)
 	if err != nil {

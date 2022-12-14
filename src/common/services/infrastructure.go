@@ -3,9 +3,9 @@ package services
 import "io"
 
 type Logger interface {
-	INFO(message string)
-	ERROR(message string)
-	FATAL(message string)
+	Info(args ...interface{})
+	Error(args ...interface{})
+	Fatal(args ...interface{})
 }
 
 type LoggerOutput = io.Writer

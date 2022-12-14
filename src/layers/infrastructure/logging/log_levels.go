@@ -1,22 +1,22 @@
 package logging
 
-func activatorLevels(levels []string) levelActivate {
-	activate := levelActivate{}
+import "github.com/sirupsen/logrus"
 
+func activatorLevels(l *logrus.Logger, levels []string) {
 	for _, level := range levels {
 		switch level {
 		case "all":
-			activate.INFO = true
-			activate.ERROR = true
-			activate.FATAL = true
-			return activate
+			l.SetLevel(logrus.InfoLevel)
+			l.SetLevel(logrus.ErrorLevel)
+			l.SetLevel(logrus.FatalLevel)
+			return
 		case "info":
-			activate.INFO = true
+			l.SetLevel(logrus.InfoLevel)
 		case "error":
-			activate.ERROR = true
+			l.SetLevel(logrus.ErrorLevel)
 		case "fatal":
-			activate.FATAL = true
+			l.SetLevel(logrus.FatalLevel)
 		}
 	}
-	return activate
+	return
 }
