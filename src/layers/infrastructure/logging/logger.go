@@ -49,7 +49,3 @@ func NewLogger(w io.Writer) *logrus.Entry {
 
 	return logrus.NewEntry(l)
 }
-
-//func NewLogger(w io.Writer) *logrus.Entry {
-//	return newLogger(w)
-//}
