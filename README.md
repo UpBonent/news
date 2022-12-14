@@ -2,7 +2,7 @@
 
 This project contains:
 - REST API (based on the echo framework);
-- my own light logger;
+- logger (logrus);
 - postgresql;
 - simple front-end with js
 
