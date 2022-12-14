@@ -37,7 +37,6 @@ func (r *Repository) CreateNew(ctx context.Context, article models.Article, date
 }
 
 func (r *Repository) GetAll(ctx context.Context) (articles []models.Article, err error) {
-	var timestampPublish time.Time
 	art := models.Article{}
 
 	selector, err := r.db.QueryxContext(ctx, all)
@@ -46,7 +45,7 @@ func (r *Repository) GetAll(ctx context.Context) (articles []models.Article, err
 	}
 
 	for selector.Next() {
-		err = selector.Scan(&art.Id, &art.Header, &art.Text, &timestampPublish, &art.AuthorID)
+		err = selector.Scan(&art.Id, &art.Header, &art.Annotation, &art.DatePublish, &art.AuthorID)
 		if err != nil {
 			return
 		}
@@ -54,7 +53,7 @@ func (r *Repository) GetAll(ctx context.Context) (articles []models.Article, err
 		nextArticle := models.Article{
 			Id:          art.Id,
 			Header:      art.Header,
-			Text:        art.Text,
+			Annotation:  art.Annotation,
 			DatePublish: art.DatePublish,
 			AuthorID:    art.AuthorID,
 		}

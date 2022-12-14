@@ -12,125 +12,6 @@ import (
 	"time"
 )
 
-func TestRepository_Insert(t *testing.T) {
-	sqlDB, mock, err := sqlmock.New()
-	if err != nil {
-		panic(err)
-	}
-
-	ctx := context.Background()
-	r := NewRepository(sqlx.NewDb(sqlDB, "postgres"))
-
-	type args struct {
-		art      models.Article
-		authorID int
-	}
-	type mockBehavior func(args args)
-
-	testTable := []struct {
-		name         string
-		args         args
-		mockBehavior mockBehavior
-		wantErr      bool
-	}{
-		{
-			name: "Positive",
-			args: args{
-				art: models.Article{
-					Header:      "There's test header",
-					Text:        "There's long long long long long test text",
-					DatePublish: time.Now(),
-				},
-				authorID: 1,
-			},
-			mockBehavior: func(args args) {
-				dateCreate := time.Now().Round(time.Minute)
-				parseDatePublish, err := time.Parse("02.01.06 15:04", args.art.DatePublish)
-				assert.NoError(t, err)
-
-				mock.ExpectExec("INSERT INTO articles").
-					WithArgs(args.art.Header, args.art.Text, dateCreate, parseDatePublish, args.authorID).
-					WillReturnResult(sqlmock.NewResult(1, 1))
-			},
-			wantErr: false,
-		},
-		{
-			name: "Empty articles fields",
-			args: args{
-				art: models.Article{
-					Header:      "",
-					Text:        "",
-					DatePublish: "01.01.22 12:00",
-				},
-				authorID: 1,
-			},
-			mockBehavior: func(args args) {
-				dateCreate := time.Now().Round(time.Minute)
-				parseDatePublish, err := time.Parse("02.01.06 15:04", args.art.DatePublish)
-				assert.NoError(t, err)
-
-				mock.ExpectExec("INSERT INTO articles").
-					WithArgs(args.art.Header, args.art.Text, dateCreate, parseDatePublish, args.authorID).
-					WillReturnResult(sqlmock.NewResult(1, 1)).
-					WillReturnError(errors.New("insert error"))
-			},
-			wantErr: true,
-		},
-		{
-			name: "Incorrect date format",
-			args: args{
-				art: models.Article{
-					DatePublish: "1.1.22 12:00",
-				},
-			},
-			mockBehavior: func(args args) {},
-			wantErr:      true,
-		},
-		{
-			name: "Empty authors fields",
-			args: args{
-				art: models.Article{
-					Header:      "There's test header",
-					Text:        "There's long long long long long test text",
-					DatePublish: "01.01.22 12:00",
-				},
-				authorID: 0,
-			},
-			mockBehavior: func(args args) {
-				dateCreate := time.Now().Round(time.Minute)
-				parseDatePublish, err := time.Parse("02.01.06 15:04", args.art.DatePublish)
-				assert.NoError(t, err)
-
-				mock.ExpectExec("INSERT INTO articles").
-					WithArgs(args.art.Header, args.art.Text, dateCreate, parseDatePublish, args.authorID).
-					WillReturnResult(sqlmock.NewResult(1, 1)).
-					WillReturnError(sql.ErrNoRows)
-			},
-			wantErr: true,
-		},
-	}
-
-	for _, tt := range testTable {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.mockBehavior(tt.args)
-
-			err = r.CreateNew(ctx, tt.args.art, tt.args.authorID)
-			if tt.wantErr {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-			}
-		})
-	}
-
-	mock.ExpectClose()
-
-	err = sqlDB.Close()
-	if err != nil {
-		panic(errors.Wrap(err, "can't close connection"))
-	}
-}
-
 func TestRepository_All(t *testing.T) {
 	sqlDB, mock, err := sqlmock.New()
 	if err != nil {
@@ -166,27 +47,27 @@ func TestRepository_All(t *testing.T) {
 					Id:          1,
 					Header:      "There's first test header",
 					Text:        "There's first test text",
-					DatePublish: "01.01.22 12:00",
+					DatePublish: time.Date(2022, 01, 01, 12, 00, 00, 00, time.UTC),
 					AuthorID:    1,
 				},
 				{
 					Id:          2,
 					Header:      "There's second test header",
 					Text:        "There's second test text",
-					DatePublish: "01.01.22 15:00",
+					DatePublish: time.Date(2022, 01, 01, 15, 00, 00, 00, time.UTC),
 					AuthorID:    1,
 				},
 			},
 			wantErr: false,
 		},
-		{
-			name: "Empty DB table",
-			mockBehavior: func() {
-				rows := mock.NewRows([]string{"id", "header", "text", "date_publish", "id_authors"})
 
-				mock.ExpectQuery(all).WillReturnRows(rows)
+		{
+			name: "No rows",
+			mockBehavior: func() {
+				mock.ExpectQuery("SELECT id, header, text, date_publish, author_id FROM articles").
+					WillReturnError(sql.ErrNoRows)
 			},
-			wantErr: false,
+			wantErr: true,
 		},
 	}
 
@@ -195,10 +76,11 @@ func TestRepository_All(t *testing.T) {
 			tt.mockBehavior()
 
 			gotArticles, err := r.GetAll(ctx)
-			if assert.NoError(t, err) {
+			if tt.wantErr {
+				assert.Equal(t, err, sql.ErrNoRows)
+			} else {
 				assert.Equal(t, tt.wantArticles, gotArticles)
 			}
-
 		})
 	}
 
@@ -237,9 +119,8 @@ func TestRepository_Update(t *testing.T) {
 			args: args{
 				existArticle: 1,
 				article: models.Article{
-					Header:      "There's new test header",
-					Text:        "There's new test text",
-					DatePublish: "01.01.22 20:00",
+					Header: "There's new test header",
+					Text:   "There's new test text",
 				},
 			},
 			mockBehavior: func(args args) {
@@ -267,10 +148,9 @@ func TestRepository_Update(t *testing.T) {
 			args: args{
 				existArticle: 1,
 				article: models.Article{
-					Id:          1,
-					Header:      "",
-					Text:        "",
-					DatePublish: "",
+					Id:     1,
+					Header: "",
+					Text:   "",
 				},
 			},
 			mockBehavior: func(args args) {},
