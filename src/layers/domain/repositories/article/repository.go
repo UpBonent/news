@@ -95,7 +95,6 @@ func (r *Repository) Update(ctx context.Context, existArticle int, newArticle mo
 }
 
 func (r *Repository) GetByAuthorID(ctx context.Context, id int) (articles []models.Article, err error) {
-	var timestampPublish time.Time
 	article := models.Article{}
 
 	selector, err := r.db.QueryxContext(ctx, byAuthorID, id)
@@ -104,7 +103,7 @@ func (r *Repository) GetByAuthorID(ctx context.Context, id int) (articles []mode
 	}
 
 	for selector.Next() {
-		err = selector.Scan(&article.Id, &article.Header, &article.Text, &timestampPublish)
+		err = selector.Scan(&article.Id, &article.Header, &article.Text, &article.DatePublish)
 		if err != nil {
 			return
 		}

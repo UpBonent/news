@@ -8,7 +8,6 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -34,10 +33,6 @@ func NewRepository(db *sqlx.DB) services.AuthorRepository {
 }
 
 func (r *Repository) CreateNew(ctx context.Context, a models.Author) (id int, err error) {
-	if a.Name == "" || a.Surname == "" {
-		return 0, errors.New("error: author's fields is empty")
-	}
-
 	result := r.db.QueryRowxContext(ctx, NewAuthor, a.Name, a.Surname, a.UserName, a.Password, a.Salt, a.CookieValue)
 	if result.Err() != nil {
 		return 0, result.Err()
@@ -70,20 +65,12 @@ func (r *Repository) GetAll(ctx context.Context) (authors []models.Author, err e
 }
 
 func (r *Repository) GetByID(ctx context.Context, id int) (author models.Author, err error) {
-	if id == 0 {
-		return author, errors.New("author's id is empty")
-	}
-
 	result := r.db.QueryRowxContext(ctx, GetAuthorByID, id)
 	err = result.Scan(&author.Name, &author.Surname)
 	return
 }
 
 func (r *Repository) GetIDByName(ctx context.Context, author models.Author) (id int, err error) {
-	if author.Name == "" || author.Surname == "" {
-		return id, errors.New("author's fields is empty")
-	}
-
 	result := r.db.QueryRowContext(ctx, GetAuthorByName, author.Name, author.Surname)
 	err = result.Scan(&id)
 	return

@@ -10,7 +10,6 @@ import (
 )
 
 func (a *Application) CreateNewAuthor(ctx context.Context, author models.Author) (id int, c string, err error) {
-
 	err = a.Author.CheckExisting(author.UserName)
 	if err != nil && err != sql.ErrNoRows {
 		a.Logger.Error(err.Error())
